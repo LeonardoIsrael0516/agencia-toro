@@ -51,7 +51,7 @@ const schema = z.object({
 });
 
 type FormData = z.infer<typeof schema>;
-type Step = 0 | 1 | 2 | 3;
+type Step = 0 | 1 | 2;
 
 const steps = [
   { label: "Sobre você", fields: ["nome", "whatsapp"] as const },
