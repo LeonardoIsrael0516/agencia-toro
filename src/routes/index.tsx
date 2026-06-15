@@ -33,7 +33,6 @@ function Home() {
       <Hero />
       <Marquee />
       <Stats />
-      <Sobre />
       <Servicos />
       <ParaQuem />
       <Metodo />
@@ -163,11 +162,6 @@ function Stats() {
       </div>
     </section>
   );
-}
-
-/* ------------------------------ SOBRE ----------------------------------- */
-function Sobre() {
-  return null; // merged into Stats; kept for routing clarity
 }
 
 /* ----------------------------- SERVIÇOS --------------------------------- */
