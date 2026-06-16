@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Logo } from "./Logo";
+import { LEGAL } from "@/lib/legal-config";
 
 export function SiteFooter() {
   return (
@@ -18,13 +19,36 @@ export function SiteFooter() {
               Solicitar análise gratuita →
             </Link>
           </div>
-          <FooterCol title="Agência" links={[["Quem somos", "#sobre"], ["Método", "#metodo"], ["Cases", "#cases"], ["Cultura", "#cultura"]]} />
+          <FooterCol title="Agência" links={[["Quem somos", "#sobre"], ["Método", "#metodo"], ["Na prática", "#na-pratica"], ["Cultura", "#cultura"]]} />
           <FooterCol title="Serviços" links={[["Tráfego pago", "#servicos"], ["Funis de venda", "#servicos"], ["Conteúdo", "#servicos"], ["Treinamento comercial", "#servicos"]]} />
-          <FooterCol title="Contato" links={[["WhatsApp", "https://wa.me/5511999999999"], ["contato@toromkt.com.br", "mailto:contato@toromkt.com.br"], ["@toromkt", "https://instagram.com/toromkt"]]} />
+          <FooterCol
+            title="Contato"
+            links={[
+              [LEGAL.whatsappDisplay, LEGAL.whatsappUrl],
+              [LEGAL.contactEmail, `mailto:${LEGAL.contactEmail}`],
+              [LEGAL.instagramHandle, LEGAL.instagramUrl],
+            ]}
+          />
         </div>
 
-        <div className="mt-20 flex flex-col items-start justify-between gap-4 border-t border-white/5 pt-8 text-xs text-muted-foreground sm:flex-row sm:items-center">
-          <span>© {new Date().getFullYear()} Toró Marketing. Todos os direitos reservados.</span>
+        <div className="mt-20 flex flex-col gap-4 border-t border-white/5 pt-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 sm:gap-1">
+            <span>© {new Date().getFullYear()} {LEGAL.companyName}. Todos os direitos reservados.</span>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              <Link to="/privacidade" className="transition hover:text-foreground">
+                Política de Privacidade
+              </Link>
+              <Link to="/termos" className="transition hover:text-foreground">
+                Termos de Uso
+              </Link>
+              <a href={`mailto:${LEGAL.privacyEmail}`} className="transition hover:text-foreground">
+                Canal do titular (LGPD)
+              </a>
+            </div>
+            <p className="max-w-md text-[10px] leading-relaxed text-muted-foreground/50">
+              {LEGAL.address}
+            </p>
+          </div>
           <span className="tracking-[0.2em] uppercase">Estratégia · Dados · Performance · Resultados</span>
         </div>
       </div>
@@ -46,7 +70,13 @@ function FooterCol({ title, links }: { title: string; links: [string, string][] 
       <ul className="mt-5 space-y-3 text-sm">
         {links.map(([label, href]) => (
           <li key={label}>
-            <a href={href} className="text-foreground/80 transition hover:text-foreground">{label}</a>
+            <a
+              href={href}
+              className="text-foreground/80 transition hover:text-foreground"
+              {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            >
+              {label}
+            </a>
           </li>
         ))}
       </ul>

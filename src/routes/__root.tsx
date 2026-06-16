@@ -10,7 +10,10 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import favicon from "../assets/favicon.png?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { CookieBanner } from "../components/legal/CookieBanner";
+import { loadAnalyticsIfConsented } from "../lib/analytics-loader";
 
 function NotFoundComponent() {
   return (
@@ -77,10 +80,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Toró — Marketing para clínicas, odontologia e estética" },
+      { title: "Toró | Marketing para clínicas, odontologia e estética" },
       { name: "description", content: "A agência especializada em saúde e estética. Estratégia, tráfego e vendas para fazer chover pacientes." },
       { name: "author", content: "Toró Marketing" },
-      { property: "og:title", content: "Toró — Marketing que faz chover resultados" },
+      { property: "og:title", content: "Toró | Marketing que faz chover resultados" },
       { property: "og:description", content: "Marketing especializado em clínicas, odontologia e estética. Crescimento previsível com estratégia, dados e performance." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -91,6 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "icon", type: "image/png", href: favicon },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -107,7 +111,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         <HeadContent />
       </head>
@@ -122,10 +126,15 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    loadAnalyticsIfConsented();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <CookieBanner />
     </QueryClientProvider>
   );
 }
