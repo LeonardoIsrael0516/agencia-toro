@@ -1,4 +1,3 @@
-import { applyWorkerRuntimeEnv } from "./lib/runtime-env";
 import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
@@ -40,6 +39,7 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+<<<<<<< HEAD
     applyWorkerRuntimeEnv(env);
 
     const { pathname } = new URL(request.url);
@@ -56,6 +56,8 @@ export default {
       }
     }
 
+=======
+>>>>>>> parent of 58178fa (2)
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

@@ -14,8 +14,12 @@ import {
 import { AnaliseFormChrome } from "./AnaliseFormChrome";
 import { AnaliseSubmitAnimation } from "./AnaliseSubmitAnimation";
 import { Checkbox } from "@/components/ui/checkbox";
+<<<<<<< HEAD
 import { useMobileKeyboardInset } from "@/hooks/use-mobile-keyboard-inset";
 import { submitLeadFromClient } from "@/lib/api/submit-lead-client";
+=======
+import { submitLead } from "@/lib/api/submit-lead";
+>>>>>>> parent of 58178fa (2)
 import { LEGAL } from "@/lib/legal-config";
 import { cn } from "@/lib/utils";
 
@@ -37,9 +41,6 @@ export function AnaliseWizard() {
 
   const current = ANALISE_STEPS[step];
   const isLast = step === TOTAL_STEPS - 1;
-  const isDesafioStep = current.field === "desafio";
-  const isOutroSelected = isDesafioStep && data.desafio === DESAFIO_OUTRO;
-  const keyboardInset = useMobileKeyboardInset();
   const currentValue = data[current.field];
   const shouldAutoFocus =
     current.type !== "radio" &&
@@ -166,28 +167,15 @@ export function AnaliseWizard() {
             key={animKey}
             className="flex min-h-0 flex-1 flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300"
           >
-            <div
-              className={cn(
-                "min-h-0 flex-1",
-                isLast ? "max-lg:pb-44" : "max-lg:pb-32",
-                isOutroSelected ? "py-1 sm:py-10" : "py-3 sm:py-10",
-              )}
-            >
+            <div className="min-h-0 flex-1 py-3 sm:py-10">
               {current.greeting ? (
                 <p className="text-sm text-[var(--ink)]/45">{current.greeting}</p>
               ) : null}
-              <h2
-                className={cn(
-                  "text-balance font-bold tracking-tight text-[var(--ink)]",
-                  isOutroSelected
-                    ? "mt-1 text-lg sm:mt-2 sm:text-3xl"
-                    : "mt-1.5 text-xl sm:mt-2 sm:text-3xl",
-                )}
-              >
+              <h2 className="mt-1.5 text-balance text-xl font-bold tracking-tight text-[var(--ink)] sm:mt-2 sm:text-3xl">
                 {current.question}
               </h2>
 
-              <div className={cn("mt-5 w-full", isOutroSelected ? "mt-3 sm:mt-8" : "sm:mt-8")}>
+              <div className="mt-5 w-full sm:mt-8">
                 {current.type === "text" || current.type === "tel" ? (
                   <Field error={errors[current.field]} hint={current.hint}>
                     <input
@@ -222,6 +210,7 @@ export function AnaliseWizard() {
                 ) : null}
 
                 {current.type === "radio" && current.options ? (
+<<<<<<< HEAD
 <<<<<<< HEAD
                   <Field error={isOutroSelected ? undefined : errors[current.field]}>
                     {isOutroSelected ? (
@@ -273,22 +262,32 @@ export function AnaliseWizard() {
                               />
                             );
                           }
+=======
+                  <Field error={current.field === "desafio" && data.desafio === DESAFIO_OUTRO ? undefined : errors[current.field]}>
+                    <div className="grid gap-1.5 sm:gap-2">
+                      {current.options.map((opt) => {
+                        const isOutro = current.field === "desafio" && opt === DESAFIO_OUTRO;
+>>>>>>> parent of 58178fa (2)
 
+                        if (isOutro) {
                           return (
-                            <Choice
+                            <OutroChoice
                               key={opt}
                               label={opt}
-                              checked={data[current.field] === opt}
-                              onClick={() => {
-                                if (isDesafioStep) {
-                                  update("desafioOutro", "");
-                                  setErrors((e) => ({ ...e, desafioOutro: undefined }));
-                                }
-                                update(current.field, opt);
-                                setErrors((e) => ({ ...e, [current.field]: undefined }));
+                              checked={data.desafio === opt}
+                              value={data.desafioOutro}
+                              error={errors.desafioOutro}
+                              onSelect={() => {
+                                update("desafio", opt);
+                                setErrors((e) => ({ ...e, desafio: undefined, desafioOutro: undefined }));
+                              }}
+                              onChange={(v) => {
+                                update("desafioOutro", v);
+                                setErrors((err) => ({ ...err, desafioOutro: undefined }));
                               }}
                             />
                           );
+<<<<<<< HEAD
                         })}
                       </div>
                     )}
@@ -329,11 +328,33 @@ export function AnaliseWizard() {
                       </div>
                     ) : null}
 >>>>>>> parent of 145708a (Update AnaliseWizard.tsx)
+=======
+                        }
+
+                        return (
+                          <Choice
+                            key={opt}
+                            label={opt}
+                            checked={data[current.field] === opt}
+                            onClick={() => {
+                              if (current.field === "desafio") {
+                                update("desafioOutro", "");
+                                setErrors((e) => ({ ...e, desafioOutro: undefined }));
+                              }
+                              update(current.field, opt);
+                              setErrors((e) => ({ ...e, [current.field]: undefined }));
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+>>>>>>> parent of 58178fa (2)
                   </Field>
                 ) : null}
               </div>
             </div>
 
+<<<<<<< HEAD
             <div
               className={cn(
                 "flex shrink-0 flex-col gap-3 pt-2 sm:pt-4",
@@ -343,6 +364,9 @@ export function AnaliseWizard() {
               )}
               style={{ bottom: keyboardInset }}
             >
+=======
+            <div className="flex shrink-0 flex-col gap-3 pt-2 sm:pt-4">
+>>>>>>> parent of 58178fa (2)
               {isLast ? (
                 <PrivacyConsentField
                   checked={data.consentimentoPrivacidade}
