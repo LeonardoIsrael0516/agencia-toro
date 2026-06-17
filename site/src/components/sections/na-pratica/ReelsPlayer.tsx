@@ -71,13 +71,28 @@ export function ReelsPlayer({ variant, fullscreen = false, className }: ReelsPla
   const [comments, setComments] = useState(42);
   const [shares, setShares] = useState(18);
   const lastTapRef = useRef(0);
+  const userUnmutedRef = useRef(false);
+
+  const playMuted = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (!userUnmutedRef.current) {
+      video.muted = true;
+      setMuted(true);
+    }
+
+    void video.play().catch(() => {});
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
     const container = containerRef.current;
     if (!video || !container) return;
 
+    userUnmutedRef.current = false;
     video.muted = true;
+    setMuted(true);
 
     const onTimeUpdate = () => {
       if (video.duration > 0) setProgress(video.currentTime / video.duration);
@@ -86,8 +101,10 @@ export function ReelsPlayer({ variant, fullscreen = false, className }: ReelsPla
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting && entry.intersectionRatio >= 0.35) {
-          void video.play().catch(() => {});
+          playMuted();
         } else {
+          video.pause();
+          userUnmutedRef.current = false;
           video.muted = true;
           setMuted(true);
         }
@@ -96,14 +113,16 @@ export function ReelsPlayer({ variant, fullscreen = false, className }: ReelsPla
     );
 
     observer.observe(container);
-    void video.play().catch(() => {});
+    playMuted();
 
+    video.addEventListener("canplay", playMuted);
     video.addEventListener("timeupdate", onTimeUpdate);
     return () => {
       observer.disconnect();
+      video.removeEventListener("canplay", playMuted);
       video.removeEventListener("timeupdate", onTimeUpdate);
     };
-  }, []);
+  }, [playMuted]);
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -118,6 +137,7 @@ export function ReelsPlayer({ variant, fullscreen = false, className }: ReelsPla
   const unmute = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
+    userUnmutedRef.current = true;
     video.currentTime = 0;
     setProgress(0);
     video.muted = false;

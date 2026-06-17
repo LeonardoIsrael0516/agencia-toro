@@ -280,23 +280,8 @@
   animation: reels-progress 12s linear infinite;
 }
 
-/* Home — Reels fullscreen snap (mobile) */
+/* Home — Reels immersive header (mobile) */
 @media (max-width: 1023px) {
-  html.home-reels-snap {
-    scroll-behavior: auto;
-    scroll-snap-type: y mandatory;
-    overscroll-behavior-y: contain;
-  }
-
-  .snap-section-reels {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-
-  .snap-section-next {
-    scroll-snap-align: start;
-  }
-
   body.reels-immersive [data-site-header] {
     opacity: 0;
     pointer-events: none;
@@ -375,12 +360,6 @@
 
 [data-site-header][data-light="true"] .site-header-nav-link:hover {
   color: var(--ink);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html.home-reels-snap {
-    scroll-behavior: auto;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

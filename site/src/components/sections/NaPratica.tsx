@@ -86,7 +86,7 @@ export function NaPratica() {
       id="na-pratica"
       className={cn(
         "relative overflow-hidden bg-black",
-        "h-[100svh] snap-section-reels touch-pan-y lg:h-auto lg:snap-none",
+        "h-[100svh] touch-pan-y lg:h-auto",
         "lg:border-y lg:border-white/5 lg:bg-[var(--ink)]",
       )}
     >

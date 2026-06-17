@@ -30,4 +30,5 @@ export function preloadNaPraticaVideo() {
   video.style.cssText = "position:fixed;width:0;height:0;opacity:0;pointer-events:none;";
   document.body.appendChild(video);
   video.load();
+  void video.play().catch(() => {});
 }
