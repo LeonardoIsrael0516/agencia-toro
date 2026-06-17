@@ -155,7 +155,7 @@ export function AnaliseWizard() {
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:overflow-hidden">
           <div
             key={animKey}
-            className="flex min-h-0 flex-1 flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300"
+            className="flex min-h-0 flex-1 flex-col animate-in fade-in slide-in-from-bottom-2 duration-300"
           >
             <div className="min-h-0 flex-1 py-3 sm:py-10">
               {current.greeting ? (
@@ -200,41 +200,48 @@ export function AnaliseWizard() {
                 ) : null}
 
                 {current.type === "radio" && current.options ? (
-                  <Field error={errors[current.field]}>
+                  <Field error={current.field === "desafio" && data.desafio === DESAFIO_OUTRO ? undefined : errors[current.field]}>
                     <div className="grid gap-1.5 sm:gap-2">
-                      {current.options.map((opt) => (
-                        <Choice
-                          key={opt}
-                          label={opt}
-                          checked={data[current.field] === opt}
-                          onClick={() => {
-                            if (current.field === "desafio" && opt !== DESAFIO_OUTRO) {
-                              update("desafioOutro", "");
-                              setErrors((e) => ({ ...e, desafioOutro: undefined }));
-                            }
-                            update(current.field, opt);
-                            setErrors((e) => ({ ...e, [current.field]: undefined }));
-                          }}
-                        />
-                      ))}
-                    </div>
-                    {current.field === "desafio" && data.desafio === DESAFIO_OUTRO ? (
-                      <div className="mt-3">
-                        <Field error={errors.desafioOutro}>
-                          <input
-                            type="text"
-                            value={data.desafioOutro}
-                            onChange={(e) => {
-                              update("desafioOutro", e.target.value);
-                              setErrors((err) => ({ ...err, desafioOutro: undefined }));
+                      {current.options.map((opt) => {
+                        const isOutro = current.field === "desafio" && opt === DESAFIO_OUTRO;
+
+                        if (isOutro) {
+                          return (
+                            <OutroChoice
+                              key={opt}
+                              label={opt}
+                              checked={data.desafio === opt}
+                              value={data.desafioOutro}
+                              error={errors.desafioOutro}
+                              onSelect={() => {
+                                update("desafio", opt);
+                                setErrors((e) => ({ ...e, desafio: undefined, desafioOutro: undefined }));
+                              }}
+                              onChange={(v) => {
+                                update("desafioOutro", v);
+                                setErrors((err) => ({ ...err, desafioOutro: undefined }));
+                              }}
+                            />
+                          );
+                        }
+
+                        return (
+                          <Choice
+                            key={opt}
+                            label={opt}
+                            checked={data[current.field] === opt}
+                            onClick={() => {
+                              if (current.field === "desafio") {
+                                update("desafioOutro", "");
+                                setErrors((e) => ({ ...e, desafioOutro: undefined }));
+                              }
+                              update(current.field, opt);
+                              setErrors((e) => ({ ...e, [current.field]: undefined }));
                             }}
-                            placeholder="Descreva seu principal desafio"
-                            autoFocus={data.desafioOutro.trim().length === 0}
-                            className={inputCls}
                           />
-                        </Field>
-                      </div>
-                    ) : null}
+                        );
+                      })}
+                    </div>
                   </Field>
                 ) : null}
               </div>
@@ -334,19 +341,74 @@ function Choice({ label, checked, onClick }: { label: string; checked: boolean; 
       )}
     >
       <span>{label}</span>
-      <span
-        className={cn(
-          "grid h-5 w-5 shrink-0 place-items-center rounded-full border transition",
-          checked ? "border-[#006CFF] bg-[#006CFF] text-white" : "border-[var(--ink)]/20",
-        )}
-      >
-        {checked ? (
-          <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden>
-            <path d="M2 6l3 3 5-5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-          </svg>
-        ) : null}
-      </span>
+      <ChoiceIndicator checked={checked} />
     </button>
+  );
+}
+
+function OutroChoice({
+  label,
+  checked,
+  value,
+  error,
+  onSelect,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  value: string;
+  error?: string;
+  onSelect: () => void;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div
+      className={cn(
+        "overflow-hidden rounded-xl border text-left transition",
+        checked
+          ? "border-[#006CFF]/40 bg-[#006CFF]/[0.06] text-[var(--ink)]"
+          : "border-[var(--ink)]/10 bg-white text-[var(--ink)]/75",
+      )}
+    >
+      <button
+        type="button"
+        onClick={onSelect}
+        className="flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-[13px] transition sm:gap-4 sm:px-5 sm:py-4 sm:text-sm"
+      >
+        <span>{label}</span>
+        <ChoiceIndicator checked={checked} />
+      </button>
+      {checked ? (
+        <div className="border-t border-[#006CFF]/15 px-3.5 pb-3 pt-2 sm:px-5 sm:pb-4 sm:pt-3">
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="Descreva seu principal desafio"
+            autoFocus={value.trim().length === 0}
+            className="w-full rounded-lg border border-[var(--ink)]/12 bg-white px-3 py-2.5 text-sm text-[var(--ink)] outline-none transition placeholder:text-[var(--ink)]/35 focus:border-[#006CFF]/50 focus:ring-2 focus:ring-[#006CFF]/15 sm:px-4 sm:py-3 sm:text-base"
+          />
+          {error ? <p className="mt-2 text-xs text-[#E85D6F]">{error}</p> : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ChoiceIndicator({ checked }: { checked: boolean }) {
+  return (
+    <span
+      className={cn(
+        "grid h-5 w-5 shrink-0 place-items-center rounded-full border transition",
+        checked ? "border-[#006CFF] bg-[#006CFF] text-white" : "border-[var(--ink)]/20",
+      )}
+    >
+      {checked ? (
+        <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden>
+          <path d="M2 6l3 3 5-5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+        </svg>
+      ) : null}
+    </span>
   );
 }
 
