@@ -4,7 +4,7 @@ set -euo pipefail
 COMPOSE_PROJECT="${COMPOSE_PROJECT:-agencia-toro}"
 INSTALL_DIR="${INSTALL_DIR:-/opt/agencia-toro}"
 API_PORT="${API_PORT:-3333}"
-REPO_URL="${REPO_URL:-}"
+REPO_URL="${REPO_URL:-https://github.com/LeonardoIsrael0516/agencia-toro.git}"
 SKIP_CLONE=false
 FORCE_ENV=false
 UPDATE_ONLY=false
@@ -31,7 +31,7 @@ Opcoes:
   -h, --help      Mostra esta ajuda
 
 Variaveis de ambiente:
-  REPO_URL        URL do repositorio Git (obrigatorio sem --skip-clone)
+  REPO_URL        URL do repositorio Git (padrao: https://github.com/LeonardoIsrael0516/agencia-toro.git)
   INSTALL_DIR     Diretorio de instalacao (padrao: /opt/agencia-toro)
   API_PORT        Porta da API no host (padrao: 3333)
   COMPOSE_PROJECT Nome do projeto Docker Compose (padrao: agencia-toro)
@@ -41,7 +41,9 @@ Variaveis de ambiente:
   CORS_ORIGINS    Origens CORS separadas por virgula (ou prompt interativo)
 
 Exemplo:
-  export REPO_URL="https://github.com/SEU_USER/agencia-toro.git"
+  sudo bash scripts/install-api-vps.sh
+  # ou com outro repo:
+  export REPO_URL="https://github.com/outro-user/agencia-toro.git"
   sudo bash scripts/install-api-vps.sh
 EOF
 }
@@ -109,7 +111,7 @@ clone_or_update_repo() {
     return
   fi
 
-  [[ -n "$REPO_URL" ]] || die "REPO_URL e obrigatorio (ex.: https://github.com/USER/agencia-toro.git)"
+  [[ -n "$REPO_URL" ]] || die "REPO_URL e obrigatorio (ex.: https://github.com/LeonardoIsrael0516/agencia-toro.git)"
 
   if [[ -d "$INSTALL_DIR/.git" ]]; then
     log "Diretorio ${INSTALL_DIR} ja existe; executando git pull..."
