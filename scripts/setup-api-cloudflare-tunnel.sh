@@ -74,22 +74,30 @@ ensure_tunnel() {
     log "Tunnel ${TUNNEL_NAME} ja existe"
   fi
 
-  mkdir -p "${CREDENTIALS_DIR}"
   local tunnel_id
   tunnel_id="$(cloudflared tunnel list | awk -v name="${TUNNEL_NAME}" '$2 == name { print $1 }' | head -n1)"
   [[ -n "${tunnel_id}" ]] || die "Nao foi possivel obter o ID do tunnel ${TUNNEL_NAME}"
 
+  local default_cred="/root/.cloudflared/${tunnel_id}.json"
   local cred_file="${CREDENTIALS_DIR}/${tunnel_id}.json"
-  if [[ ! -f "${cred_file}" ]]; then
-    die "Credenciais do tunnel nao encontradas em ${cred_file}. Rode antes: cloudflared tunnel login"
+
+  if [[ -f "${default_cred}" && ! -f "${cred_file}" ]]; then
+    mkdir -p "${CREDENTIALS_DIR}"
+    cp "${default_cred}" "${cred_file}"
   fi
 
-  printf '%s' "${tunnel_id}"
+  if [[ ! -f "${cred_file}" && -f "${default_cred}" ]]; then
+    cred_file="${default_cred}"
+  fi
+
+  [[ -f "${cred_file}" ]] || die "Credenciais do tunnel nao encontradas. Rode: cloudflared tunnel login && cloudflared tunnel create ${TUNNEL_NAME}"
+
+  printf '%s\n%s' "${tunnel_id}" "${cred_file}"
 }
 
 write_config() {
   local tunnel_id="$1"
-  local cred_file="${CREDENTIALS_DIR}/${tunnel_id}.json"
+  local cred_file="$2"
   local config_file="${CONFIG_DIR}/config.yml"
 
   mkdir -p "${CONFIG_DIR}"
@@ -115,14 +123,13 @@ route_dns() {
 }
 
 install_service() {
-  local config_file="${CONFIG_DIR}/config.yml"
   log "Instalando servico systemd cloudflared..."
-  cloudflared service install
+  cloudflared --config "${CONFIG_DIR}/config.yml" service install
   systemctl enable cloudflared
   systemctl restart cloudflared
   systemctl --no-pager --full status cloudflared || true
   log "Tunnel ativo. Teste: curl -fsS https://${API_HOST}/health"
-  log "Config: ${config_file}"
+  log "Config: ${CONFIG_DIR}/config.yml"
 }
 
 main() {
@@ -138,9 +145,9 @@ main() {
     die "cloudflared nao autenticado. Rode: cloudflared tunnel login"
   fi
 
-  local tunnel_id
-  tunnel_id="$(ensure_tunnel)"
-  write_config "${tunnel_id}"
+  local tunnel_id cred_file
+  read -r tunnel_id cred_file < <(ensure_tunnel)
+  write_config "${tunnel_id}" "${cred_file}"
   route_dns
   install_service
 
