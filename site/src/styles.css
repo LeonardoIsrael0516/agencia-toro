@@ -282,6 +282,21 @@
 
 /* Home — Reels immersive header (mobile) */
 @media (max-width: 1023px) {
+  html.home-reels-snap {
+    scroll-snap-type: y proximity;
+    overscroll-behavior-y: contain;
+  }
+
+  .snap-section-reels {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+  }
+
+  .snap-section-next {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+  }
+
   body.reels-immersive [data-site-header] {
     opacity: 0;
     pointer-events: none;
@@ -363,6 +378,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html.home-reels-snap {
+    scroll-behavior: auto;
+  }
+
   .scroll-down-cue {
     animation: none;
   }

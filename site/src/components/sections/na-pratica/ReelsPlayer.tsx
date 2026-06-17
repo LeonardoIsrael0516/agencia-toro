@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import logoWhite from "@/assets/logo-white.png";
 import { cn } from "@/lib/utils";
 
@@ -7,7 +7,6 @@ import { NA_PRATICA_VIDEO_SRC } from "@/lib/na-pratica-video";
 type ReelsPlayerProps = {
   variant: "mobile" | "desktop";
   fullscreen?: boolean;
-  active?: boolean;
   className?: string;
 };
 
@@ -61,10 +60,11 @@ function ReelsAction({
   );
 }
 
-export function ReelsPlayer({ variant, fullscreen = false, active = true, className }: ReelsPlayerProps) {
+export function ReelsPlayer({ variant, fullscreen = false, className }: ReelsPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [liked, setLiked] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
@@ -73,13 +73,15 @@ export function ReelsPlayer({ variant, fullscreen = false, active = true, classN
   const [shares, setShares] = useState(18);
   const lastTapRef = useRef(0);
   const userUnmutedRef = useRef(false);
+  const visibleRef = useRef(true);
 
   const playMuted = useCallback(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !visibleRef.current) return;
 
     if (!userUnmutedRef.current) {
       video.muted = true;
+      video.defaultMuted = true;
       setMuted(true);
     }
 
@@ -92,40 +94,102 @@ export function ReelsPlayer({ variant, fullscreen = false, active = true, classN
     video.pause();
     userUnmutedRef.current = false;
     video.muted = true;
+    video.defaultMuted = true;
     setMuted(true);
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-
     video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
     setMuted(true);
+    playMuted();
+  }, [playMuted]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const container = containerRef.current;
+    if (!video || !container) return;
+
+    let retryTimer: number | undefined;
+
+    const clearRetry = () => {
+      if (retryTimer !== undefined) {
+        window.clearInterval(retryTimer);
+        retryTimer = undefined;
+      }
+    };
+
+    const startRetry = () => {
+      clearRetry();
+      let attempts = 0;
+      retryTimer = window.setInterval(() => {
+        if (!visibleRef.current || userUnmutedRef.current || attempts >= 12) {
+          clearRetry();
+          return;
+        }
+        attempts += 1;
+        if (video.paused) playMuted();
+        else clearRetry();
+      }, 400);
+    };
 
     const onTimeUpdate = () => {
       if (video.duration > 0) setProgress(video.currentTime / video.duration);
     };
 
     const onReady = () => {
-      if (active) playMuted();
+      if (visibleRef.current) {
+        playMuted();
+        startRetry();
+      }
     };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const visible = Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.2);
+        visibleRef.current = visible;
+
+        if (visible) {
+          playMuted();
+          startRetry();
+        } else if (entry && entry.intersectionRatio < 0.05) {
+          clearRetry();
+          pauseAndReset();
+        }
+      },
+      { threshold: [0, 0.05, 0.2, 0.35, 0.55, 0.75] },
+    );
+
+    observer.observe(container);
+    playMuted();
+    startRetry();
+
+    const onPlaying = () => {
+      setIsPlaying(true);
+      clearRetry();
+    };
+
+    const onPause = () => setIsPlaying(false);
 
     video.addEventListener("loadeddata", onReady);
     video.addEventListener("canplay", onReady);
+    video.addEventListener("playing", onPlaying);
+    video.addEventListener("pause", onPause);
     video.addEventListener("timeupdate", onTimeUpdate);
 
-    if (active) {
-      playMuted();
-    } else {
-      pauseAndReset();
-    }
-
     return () => {
+      observer.disconnect();
+      clearRetry();
       video.removeEventListener("loadeddata", onReady);
       video.removeEventListener("canplay", onReady);
+      video.removeEventListener("playing", onPlaying);
+      video.removeEventListener("pause", onPause);
       video.removeEventListener("timeupdate", onTimeUpdate);
     };
-  }, [active, playMuted, pauseAndReset]);
+  }, [playMuted, pauseAndReset]);
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -217,6 +281,7 @@ export function ReelsPlayer({ variant, fullscreen = false, active = true, classN
             autoPlay
             loop
             muted={muted}
+            defaultMuted
             playsInline
             preload="auto"
             disablePictureInPicture
@@ -251,40 +316,65 @@ export function ReelsPlayer({ variant, fullscreen = false, active = true, classN
           ) : null}
 
           {muted ? (
-            <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center">
-              <button
-                type="button"
-                aria-label="Ativar som"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  unmute();
-                }}
-                className={cn(
-                  "pointer-events-auto flex flex-col items-center rounded-full transition active:scale-95",
-                  isDesktop ? "gap-1" : "gap-2.5",
-                )}
-              >
-                <span
+            isPlaying ? (
+              <div className="absolute left-3 top-1/2 z-20 -translate-y-1/2 sm:left-4">
+                <button
+                  type="button"
+                  aria-label="Ativar som"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    unmute();
+                  }}
                   className={cn(
-                    "grid place-items-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md",
-                    isDesktop ? "h-10 w-10" : "h-[4.5rem] w-[4.5rem]",
+                    "pointer-events-auto flex items-center gap-2 rounded-full border border-white/20 bg-black/45 px-3 py-2 text-white backdrop-blur-md transition active:scale-95",
+                    isDesktop ? "px-2 py-1.5" : "px-3 py-2",
                   )}
                 >
-                  <svg width={isDesktop ? 16 : 26} height={isDesktop ? 16 : 26} viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <svg width={isDesktop ? 14 : 18} height={isDesktop ? 14 : 18} viewBox="0 0 24 24" fill="none" aria-hidden>
                     <path d="M11 5 6 9H3v6h3l5 4V5z" stroke="currentColor" strokeWidth="1.75" strokeLinejoin="round" />
                     <path d="m16 9 5 5M21 9l-5 5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
                   </svg>
-                </span>
-                <span
+                  <span className={cn("font-medium text-white/90", isDesktop ? "text-[8px]" : "text-[11px]")}>
+                    Ativar som
+                  </span>
+                </button>
+              </div>
+            ) : (
+              <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center">
+                <button
+                  type="button"
+                  aria-label="Ativar som"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    unmute();
+                  }}
                   className={cn(
-                    "rounded-full bg-black/45 font-medium text-white/90 backdrop-blur-sm",
-                    isDesktop ? "px-2 py-0.5 text-[8px]" : "px-3 py-1 text-[11px]",
+                    "pointer-events-auto flex flex-col items-center rounded-full transition active:scale-95",
+                    isDesktop ? "gap-1" : "gap-2.5",
                   )}
                 >
-                  {isDesktop ? "Clique para som" : "Toque para ativar o som"}
-                </span>
-              </button>
-            </div>
+                  <span
+                    className={cn(
+                      "grid place-items-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md",
+                      isDesktop ? "h-10 w-10" : "h-[4.5rem] w-[4.5rem]",
+                    )}
+                  >
+                    <svg width={isDesktop ? 16 : 26} height={isDesktop ? 16 : 26} viewBox="0 0 24 24" fill="none" aria-hidden>
+                      <path d="M11 5 6 9H3v6h3l5 4V5z" stroke="currentColor" strokeWidth="1.75" strokeLinejoin="round" />
+                      <path d="m16 9 5 5M21 9l-5 5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                  <span
+                    className={cn(
+                      "rounded-full bg-black/45 font-medium text-white/90 backdrop-blur-sm",
+                      isDesktop ? "px-2 py-0.5 text-[8px]" : "px-3 py-1 text-[11px]",
+                    )}
+                  >
+                    {isDesktop ? "Clique para som" : "Toque para ativar o som"}
+                  </span>
+                </button>
+              </div>
+            )
           ) : null}
 
           {/* Topo */}

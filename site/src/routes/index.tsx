@@ -11,6 +11,7 @@ import { Diferencial } from "@/components/sections/Diferencial";
 import { CtaFinal } from "@/components/sections/CtaFinal";
 import { NaPratica } from "@/components/sections/NaPratica";
 import { NA_PRATICA_VIDEO_SRC, preloadNaPraticaVideo } from "@/lib/na-pratica-video";
+import { useHomeReelsScrollSnap } from "@/hooks/use-home-reels-scroll-snap";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -41,6 +42,8 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
+  useHomeReelsScrollSnap();
+
   useEffect(() => {
     preloadNaPraticaVideo();
   }, []);
@@ -55,7 +58,9 @@ function Home() {
       <ParaQuem />
       <Metodo />
       <NaPratica />
-      <Diferencial />
+      <div className="max-lg:snap-section-next">
+        <Diferencial />
+      </div>
       <CtaFinal />
       <SiteFooter />
     </div>
