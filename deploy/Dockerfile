@@ -37,10 +37,6 @@ FROM node:22-bookworm-slim AS runner
 
 WORKDIR /app
 
-COPY --from=prod-deps /app/node_modules ./node_modules
-COPY --from=prod-deps /app/api/node_modules ./api/node_modules
-COPY --from=prod-deps /app/packages/shared/node_modules ./packages/shared/node_modules
-
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
@@ -49,6 +45,8 @@ COPY api/package.json api/
 COPY --from=builder /app/api/dist ./api/dist
 COPY api/drizzle.config.ts api/drizzle.config.ts
 COPY api/src/db/schema.ts api/src/db/schema.ts
+
+COPY --from=prod-deps /app/node_modules ./node_modules
 
 WORKDIR /app/api
 
