@@ -1,0 +1,7 @@
+name = "agencia-toro-site"
+compatibility_date = "2026-06-17"
+compatibility_flags = ["nodejs_compat"]
+main = "src/server.ts"
+
+[observability]
+enabled = true

@@ -19,6 +19,7 @@
     "build:api": "npm run build:shared && npm --workspace=@agencia-toro/api run build",
     "build": "npm run build:site",
     "build:all": "npm run build:shared && npm --workspace=@agencia-toro/api run build && npm --workspace=@agencia-toro/crm run build && npm --workspace=@agencia-toro/site run build",
+    "deploy:site": "npm --workspace=@agencia-toro/site run deploy",
     "db:push": "npm run db:push -w @agencia-toro/api",
     "db:seed": "npm run db:seed -w @agencia-toro/api",
     "format": "prettier --write ."
