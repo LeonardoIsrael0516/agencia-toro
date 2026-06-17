@@ -13,6 +13,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Garante build mesmo quando o workspace npm nao esta linkado (ex.: Cloudflare com root em crm/).
+      "@agencia-toro/shared": path.resolve(__dirname, "../packages/shared/src/index.ts"),
     },
   },
   server: {
