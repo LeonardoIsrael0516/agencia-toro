@@ -15,15 +15,15 @@ const nav = [
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const overLight = useOverLightSection();
-  const light = overLight;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/";
+  const overLight = useOverLightSection(isHome);
+  const light = overLight;
 
   useLayoutEffect(() => {
     const onScroll = () => {
-      setScrolled(window.scrollY > 8);
-      if (window.scrollY > 8) setOpen(false);
+      setScrolled(window.scrollY > 16);
+      if (window.scrollY > 16) setOpen(false);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -46,6 +46,8 @@ export function SiteHeader() {
   }, [open]);
 
   const showBar = !isHome || scrolled || light;
+  const barDark = showBar && !light;
+  const barLight = showBar && light;
 
   return (
     <header
@@ -53,12 +55,12 @@ export function SiteHeader() {
       data-home={isHome ? "true" : undefined}
       data-over-light={light ? "true" : undefined}
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-        !showBar && "bg-transparent",
-        showBar && !light && "border-b border-white/[0.06] bg-background/75 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.45)] backdrop-blur-2xl",
-        showBar &&
-          light &&
-          "border-b border-[var(--ink)]/10 bg-[var(--paper)]/88 shadow-[0_8px_30px_-10px_rgba(3,18,37,0.1)] backdrop-blur-2xl",
+        "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500",
+        !showBar && "border-b border-transparent bg-transparent shadow-none backdrop-blur-none",
+        barDark &&
+          "border-b border-white/[0.06] bg-background/75 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.45)] backdrop-blur-2xl",
+        barLight &&
+          "border-b border-[var(--ink)]/10 bg-[var(--paper)]/92 shadow-[0_8px_30px_-10px_rgba(3,18,37,0.1)] backdrop-blur-2xl",
       )}
     >
       {light && showBar && (

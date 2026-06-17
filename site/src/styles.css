@@ -289,34 +289,6 @@
   }
 }
 
-/* Home: fundo escuro ao rolar — desliga em seções claras (data-over-light) */
-@supports (animation-timeline: scroll()) {
-  [data-site-header][data-home="true"]:not([data-over-light="true"]) {
-    animation: site-header-scroll-bar linear both;
-    animation-timeline: scroll();
-    animation-range: 0 72px;
-  }
-
-  [data-site-header][data-over-light="true"] {
-    animation: none;
-  }
-}
-
-@keyframes site-header-scroll-bar {
-  from {
-    background-color: transparent;
-    border-bottom-color: transparent;
-    box-shadow: none;
-    backdrop-filter: none;
-  }
-  to {
-    background-color: color-mix(in oklch, var(--background) 75%, transparent);
-    border-bottom: 1px solid color-mix(in oklch, white 6%, transparent);
-    box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(24px);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html.home-reels-snap {
     scroll-behavior: auto;
