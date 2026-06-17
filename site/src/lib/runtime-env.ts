@@ -2,9 +2,13 @@ const workerEnv: Record<string, string> = {};
 
 const SKIP_ENV_KEYS = new Set(["ASSETS"]);
 
+type CfEnvGlobal = typeof globalThis & { __CF_ENV__?: unknown };
+
 /** Cloudflare Workers expõe vars/secrets no objeto `env` do fetch. */
 export function applyWorkerRuntimeEnv(env: unknown) {
   for (const key of Object.keys(workerEnv)) delete workerEnv[key];
+  (globalThis as CfEnvGlobal).__CF_ENV__ = env;
+
   if (!env || typeof env !== "object") return;
 
   for (const [key, value] of Object.entries(env as Record<string, unknown>)) {
@@ -18,21 +22,12 @@ export function applyWorkerRuntimeEnv(env: unknown) {
 }
 
 export function readWorkerEnv(name: string): string {
-  return workerEnv[name] ?? "";
-}
-
-type CloudflareWorkerEnv = {
-  API_URL?: string;
-  LEAD_INGEST_SECRET?: string;
-};
-
-/** Lê vars do binding nativo do Cloudflare quando disponível. */
-export async function readCloudflareWorkerEnv(): Promise<CloudflareWorkerEnv> {
-  try {
-    // @ts-expect-error — módulo injetado pelo runtime Cloudflare Workers
-    const { env } = await import("cloudflare:workers");
-    return env as CloudflareWorkerEnv;
-  } catch {
-    return {};
+  const cf = (globalThis as CfEnvGlobal).__CF_ENV__;
+  if (cf && typeof cf === "object" && cf !== null) {
+    const value = (cf as Record<string, unknown>)[name];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
   }
+  return workerEnv[name] ?? "";
 }

@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { readCloudflareWorkerEnv, readWorkerEnv } from "./runtime-env";
+import { readWorkerEnv } from "./runtime-env";
 
 const siteRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 loadDotenv({ path: resolve(siteRoot, ".env") });
@@ -23,15 +23,10 @@ function normalizeApiUrl(raw: string): string {
   }
 }
 
-export async function getServerConfig() {
-  const cfEnv = await readCloudflareWorkerEnv();
-
-  const apiUrl = (cfEnv.API_URL?.trim() || readEnv("API_URL")).trim();
-  const leadIngestSecret = (cfEnv.LEAD_INGEST_SECRET?.trim() || readEnv("LEAD_INGEST_SECRET")).trim();
-
+export function getServerConfig() {
   return {
     nodeEnv: process.env.NODE_ENV,
-    apiUrl: normalizeApiUrl(apiUrl),
-    leadIngestSecret,
+    apiUrl: normalizeApiUrl(readEnv("API_URL")),
+    leadIngestSecret: readEnv("LEAD_INGEST_SECRET"),
   };
 }
