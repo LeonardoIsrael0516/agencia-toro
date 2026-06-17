@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const API_URL = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:3333";
+export { getApiUrl } from "./api-config";
 
 export function formatDate(iso: string) {
   return new Intl.DateTimeFormat("pt-BR", {

@@ -1,8 +1,10 @@
 name = "agencia-toro-crm"
 compatibility_date = "2026-06-17"
+main = "crm/worker.mjs"
 
 [assets]
 directory = "crm/dist"
+binding = "ASSETS"
 not_found_handling = "single-page-application"
 
 [observability]

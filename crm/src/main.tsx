@@ -4,6 +4,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { AuthProvider, useAuth } from "./lib/auth-context";
+import { loadApiConfig } from "./lib/api-config";
 import { routeTree } from "./routeTree.gen";
 import "./index.css";
 
@@ -66,12 +67,19 @@ function AppRouter() {
   );
 }
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider router={router}>
-        <AppRouter />
-      </AuthProvider>
-    </QueryClientProvider>
-  </StrictMode>,
-);
+const root = createRoot(document.getElementById("root")!);
+
+function renderApp() {
+  root.render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider router={router}>
+          <AppRouter />
+        </AuthProvider>
+      </QueryClientProvider>
+    </StrictMode>,
+  );
+}
+
+root.render(<AuthBootScreen />);
+void loadApiConfig().then(renderApp);

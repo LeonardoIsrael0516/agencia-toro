@@ -11,7 +11,7 @@ import type {
   UserRecord,
 } from "@agencia-toro/shared";
 
-import { API_URL } from "./utils";
+import { getApiUrl } from "./api-config";
 
 const TOKEN_STORAGE_KEY = "toro_crm_access_token";
 
@@ -76,7 +76,7 @@ export async function refreshAccessToken(): Promise<string | null> {
 
   refreshPromise = (async () => {
     try {
-      const res = await fetch(`${API_URL}/api/auth/refresh`, {
+      const res = await fetch(`${getApiUrl()}/api/auth/refresh`, {
         method: "POST",
         credentials: "include",
       });
@@ -121,7 +121,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
     headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
-  let res = await fetch(`${API_URL}${path}`, {
+  let res = await fetch(`${getApiUrl()}${path}`, {
     ...init,
     headers,
     credentials: "include",
@@ -131,7 +131,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
     const newToken = await refreshAccessToken();
     if (newToken) {
       headers.set("Authorization", `Bearer ${newToken}`);
-      res = await fetch(`${API_URL}${path}`, {
+      res = await fetch(`${getApiUrl()}${path}`, {
         ...init,
         headers,
         credentials: "include",
@@ -155,7 +155,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
 }
 
 export async function login(email: string, password: string) {
-  const res = await fetch(`${API_URL}/api/auth/login`, {
+  const res = await fetch(`${getApiUrl()}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -174,7 +174,7 @@ export async function login(email: string, password: string) {
 
 export async function logout() {
   try {
-    await fetch(`${API_URL}/api/auth/logout`, {
+    await fetch(`${getApiUrl()}/api/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
