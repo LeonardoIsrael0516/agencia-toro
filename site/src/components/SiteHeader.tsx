@@ -51,6 +51,7 @@ export function SiteHeader() {
     <header
       data-site-header
       data-home={isHome ? "true" : undefined}
+      data-over-light={light ? "true" : undefined}
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-500",
         !showBar && "bg-transparent",

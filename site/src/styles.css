@@ -289,12 +289,16 @@
   }
 }
 
-/* Home: fundo do header ao rolar (funciona mesmo se o JS demorar a hidratar) */
+/* Home: fundo escuro ao rolar — desliga em seções claras (data-over-light) */
 @supports (animation-timeline: scroll()) {
-  [data-site-header][data-home="true"] {
+  [data-site-header][data-home="true"]:not([data-over-light="true"]) {
     animation: site-header-scroll-bar linear both;
     animation-timeline: scroll();
     animation-range: 0 72px;
+  }
+
+  [data-site-header][data-over-light="true"] {
+    animation: none;
   }
 }
 

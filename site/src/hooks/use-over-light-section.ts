@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 
 const HEADER_PROBE = 72;
 
 export function useOverLightSection() {
   const [overLight, setOverLight] = useState(false);
 
-  useEffect(() => {
-    const sections = document.querySelectorAll(".section-light, .section-muted");
-
+  useLayoutEffect(() => {
     const check = () => {
+      const sections = document.querySelectorAll(".section-light, .section-muted");
       if (!sections.length) {
         setOverLight(false);
         return;
@@ -26,9 +25,11 @@ export function useOverLightSection() {
 
     check();
     window.addEventListener("scroll", check, { passive: true });
+    document.addEventListener("scroll", check, { passive: true });
     window.addEventListener("resize", check);
     return () => {
       window.removeEventListener("scroll", check);
+      document.removeEventListener("scroll", check);
       window.removeEventListener("resize", check);
     };
   }, []);
