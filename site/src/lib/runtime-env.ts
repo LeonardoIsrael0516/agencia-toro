@@ -2,7 +2,7 @@ const workerEnv: Record<string, string> = {};
 
 const SKIP_ENV_KEYS = new Set(["ASSETS"]);
 
-type CfEnvGlobal = typeof globalThis & { __CF_ENV__?: unknown };
+type CfEnvGlobal = typeof globalThis & { __CF_ENV__?: unknown; __env__?: unknown };
 
 /** Cloudflare Workers expõe vars/secrets no objeto `env` do fetch. */
 export function applyWorkerRuntimeEnv(env: unknown) {
@@ -21,13 +21,23 @@ export function applyWorkerRuntimeEnv(env: unknown) {
   }
 }
 
+function readFromEnvObject(env: unknown, name: string): string {
+  if (!env || typeof env !== "object") return "";
+  const value = (env as Record<string, unknown>)[name];
+  return typeof value === "string" && value.trim() ? value.trim() : "";
+}
+
 export function readWorkerEnv(name: string): string {
+  const fromCache = workerEnv[name];
+  if (fromCache) return fromCache;
+
   const cf = (globalThis as CfEnvGlobal).__CF_ENV__;
-  if (cf && typeof cf === "object" && cf !== null) {
-    const value = (cf as Record<string, unknown>)[name];
-    if (typeof value === "string" && value.trim()) {
-      return value.trim();
-    }
-  }
-  return workerEnv[name] ?? "";
+  const fromCf = readFromEnvObject(cf, name);
+  if (fromCf) return fromCf;
+
+  const nitro = (globalThis as CfEnvGlobal).__env__;
+  const fromNitro = readFromEnvObject(nitro, name);
+  if (fromNitro) return fromNitro;
+
+  return "";
 }

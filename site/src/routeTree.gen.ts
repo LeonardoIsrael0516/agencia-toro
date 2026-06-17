@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
-import { Route as LeadIngestRouteImport } from './routes/lead-ingest'
 import { Route as AnaliseRouteImport } from './routes/analise'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -31,11 +30,6 @@ const PrivacidadeRoute = PrivacidadeRouteImport.update({
   path: '/privacidade',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LeadIngestRoute = LeadIngestRouteImport.update({
-  id: '/lead-ingest',
-  path: '/lead-ingest',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AnaliseRoute = AnaliseRouteImport.update({
   id: '/analise',
   path: '/analise',
@@ -50,7 +44,6 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analise': typeof AnaliseRoute
-  '/lead-ingest': typeof LeadIngestRoute
   '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
@@ -58,7 +51,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analise': typeof AnaliseRoute
-  '/lead-ingest': typeof LeadIngestRoute
   '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
@@ -67,33 +59,19 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/analise': typeof AnaliseRoute
-  '/lead-ingest': typeof LeadIngestRoute
   '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/analise'
-    | '/lead-ingest'
-    | '/privacidade'
-    | '/sitemap.xml'
-    | '/termos'
+  fullPaths: '/' | '/analise' | '/privacidade' | '/sitemap.xml' | '/termos'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/analise'
-    | '/lead-ingest'
-    | '/privacidade'
-    | '/sitemap.xml'
-    | '/termos'
+  to: '/' | '/analise' | '/privacidade' | '/sitemap.xml' | '/termos'
   id:
     | '__root__'
     | '/'
     | '/analise'
-    | '/lead-ingest'
     | '/privacidade'
     | '/sitemap.xml'
     | '/termos'
@@ -102,7 +80,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnaliseRoute: typeof AnaliseRoute
-  LeadIngestRoute: typeof LeadIngestRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosRoute: typeof TermosRoute
@@ -131,13 +108,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lead-ingest': {
-      id: '/lead-ingest'
-      path: '/lead-ingest'
-      fullPath: '/lead-ingest'
-      preLoaderRoute: typeof LeadIngestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/analise': {
       id: '/analise'
       path: '/analise'
@@ -158,7 +128,6 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnaliseRoute: AnaliseRoute,
-  LeadIngestRoute: LeadIngestRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosRoute: TermosRoute,

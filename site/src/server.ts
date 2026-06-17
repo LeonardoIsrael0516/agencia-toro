@@ -1,5 +1,4 @@
 import { applyWorkerRuntimeEnv } from "./lib/runtime-env";
-import { handleSubmitLeadRequest } from "./lib/api/submit-lead-http";
 import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
@@ -46,6 +45,7 @@ export default {
     const { pathname } = new URL(request.url);
     if (pathname === "/lead-ingest" || pathname === "/lead-ingest/") {
       try {
+        const { handleSubmitLeadRequest } = await import("./lib/api/submit-lead-http");
         return await handleSubmitLeadRequest(request);
       } catch (error) {
         console.error("[lead-ingest]", error);
