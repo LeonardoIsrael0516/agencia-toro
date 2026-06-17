@@ -1,0 +1,26 @@
+name: agencia-toro
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: agencia-toro-api:latest
+    container_name: agencia-toro-api
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-3333}:3333"
+    env_file:
+      - .env
+    volumes:
+      - agencia-toro-data:/app/api/data
+    networks:
+      - agencia-toro-net
+
+networks:
+  agencia-toro-net:
+    name: agencia-toro-net
+
+volumes:
+  agencia-toro-data:
+    name: agencia-toro-data

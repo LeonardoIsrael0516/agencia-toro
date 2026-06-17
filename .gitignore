@@ -33,4 +33,5 @@ api/data
 api/.env
 crm/.env
 site/.env
+deploy/.env
 
