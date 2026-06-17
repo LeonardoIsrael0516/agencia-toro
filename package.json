@@ -9,11 +9,16 @@
     "api"
   ],
   "scripts": {
-    "dev": "npm run build -w @agencia-toro/shared && concurrently -n site,crm,api -c blue,magenta,green \"npm run dev -w @agencia-toro/site\" \"npm run dev -w @agencia-toro/crm\" \"npm run dev -w @agencia-toro/api\"",
+    "dev": "npm run build:shared && concurrently -n site,crm,api -c blue,magenta,green \"npm run dev -w @agencia-toro/site\" \"npm run dev -w @agencia-toro/crm\" \"npm run dev -w @agencia-toro/api\"",
     "dev:site": "npm run dev -w @agencia-toro/site",
     "dev:crm": "npm run dev -w @agencia-toro/crm",
     "dev:api": "npm run dev -w @agencia-toro/api",
-    "build": "npm run build -w @agencia-toro/shared && npm run build -w @agencia-toro/api && npm run build -w @agencia-toro/crm && npm run build -w @agencia-toro/site",
+    "build:shared": "npm --workspace=@agencia-toro/shared run build",
+    "build:site": "npm run build:shared && npm --workspace=@agencia-toro/site run build",
+    "build:crm": "npm run build:shared && npm --workspace=@agencia-toro/crm run build",
+    "build:api": "npm run build:shared && npm --workspace=@agencia-toro/api run build",
+    "build": "npm run build:site",
+    "build:all": "npm run build:shared && npm --workspace=@agencia-toro/api run build && npm --workspace=@agencia-toro/crm run build && npm --workspace=@agencia-toro/site run build",
     "db:push": "npm run db:push -w @agencia-toro/api",
     "db:seed": "npm run db:seed -w @agencia-toro/api",
     "format": "prettier --write ."
