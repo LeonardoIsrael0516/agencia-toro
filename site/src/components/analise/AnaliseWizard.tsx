@@ -14,12 +14,8 @@ import {
 import { AnaliseFormChrome } from "./AnaliseFormChrome";
 import { AnaliseSubmitAnimation } from "./AnaliseSubmitAnimation";
 import { Checkbox } from "@/components/ui/checkbox";
-<<<<<<< HEAD
 import { useMobileKeyboardInset } from "@/hooks/use-mobile-keyboard-inset";
 import { submitLeadFromClient } from "@/lib/api/submit-lead-client";
-=======
-import { submitLead } from "@/lib/api/submit-lead";
->>>>>>> parent of 58178fa (2)
 import { LEGAL } from "@/lib/legal-config";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +37,9 @@ export function AnaliseWizard() {
 
   const current = ANALISE_STEPS[step];
   const isLast = step === TOTAL_STEPS - 1;
+  const isDesafioStep = current.field === "desafio";
+  const isOutroSelected = isDesafioStep && data.desafio === DESAFIO_OUTRO;
+  const keyboardInset = useMobileKeyboardInset();
   const currentValue = data[current.field];
   const shouldAutoFocus =
     current.type !== "radio" &&
@@ -76,7 +75,7 @@ export function AnaliseWizard() {
         setErrors(errs);
         return;
       }
-      // Envia para API durante a animação de submit
+
       setSubmitError(null);
       setSubmitSucceeded(false);
       setAnimationDone(false);
@@ -163,231 +162,170 @@ export function AnaliseWizard() {
               next();
             }}
           >
-          <div
-            key={animKey}
-            className="flex min-h-0 flex-1 flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300"
-          >
-            <div className="min-h-0 flex-1 py-3 sm:py-10">
-              {current.greeting ? (
-                <p className="text-sm text-[var(--ink)]/45">{current.greeting}</p>
-              ) : null}
-              <h2 className="mt-1.5 text-balance text-xl font-bold tracking-tight text-[var(--ink)] sm:mt-2 sm:text-3xl">
-                {current.question}
-              </h2>
-
-              <div className="mt-5 w-full sm:mt-8">
-                {current.type === "text" || current.type === "tel" ? (
-                  <Field error={errors[current.field]} hint={current.hint}>
-                    <input
-                      type="text"
-                      value={data[current.field] as string}
-                      onChange={(e) => update(current.field, e.target.value)}
-                      placeholder={current.placeholder}
-                      inputMode={current.type === "tel" ? "numeric" : undefined}
-                      pattern={current.type === "tel" ? "[0-9]*" : undefined}
-                      autoComplete={current.type === "tel" ? "tel" : undefined}
-                      autoFocus={shouldAutoFocus}
-                      className={inputCls}
-                    />
-                  </Field>
+            <div
+              key={animKey}
+              className="flex min-h-0 flex-1 flex-col animate-in fade-in slide-in-from-bottom-2 duration-300"
+            >
+              <div
+                className={cn(
+                  "min-h-0 flex-1",
+                  isLast ? "max-lg:pb-44" : "max-lg:pb-32",
+                  isOutroSelected ? "py-1 sm:py-10" : "py-3 sm:py-10",
+                )}
+              >
+                {current.greeting ? (
+                  <p className="text-sm text-[var(--ink)]/45">{current.greeting}</p>
                 ) : null}
+                <h2
+                  className={cn(
+                    "text-balance font-bold tracking-tight text-[var(--ink)]",
+                    isOutroSelected
+                      ? "mt-1 text-lg sm:mt-2 sm:text-3xl"
+                      : "mt-1.5 text-xl sm:mt-2 sm:text-3xl",
+                  )}
+                >
+                  {current.question}
+                </h2>
 
-                {current.type === "instagram" ? (
-                  <Field error={errors[current.field]} hint={current.hint}>
-                    <div className="flex w-full items-center overflow-hidden rounded-xl border border-[var(--ink)]/12 bg-white focus-within:border-[#006CFF]/50 focus-within:ring-2 focus-within:ring-[#006CFF]/15">
-                      <span className="border-r border-[var(--ink)]/10 bg-[var(--ink)]/[0.03] px-4 py-3.5 text-base text-[var(--ink)]/45 lg:py-4">
-                        @
-                      </span>
+                <div className={cn("mt-5 w-full", isOutroSelected ? "mt-3 sm:mt-8" : "sm:mt-8")}>
+                  {current.type === "text" || current.type === "tel" ? (
+                    <Field error={errors[current.field]} hint={current.hint}>
                       <input
-                        value={data.instagram}
-                        onChange={(e) => update("instagram", e.target.value.replace(/^@/, ""))}
+                        type="text"
+                        value={data[current.field] as string}
+                        onChange={(e) => update(current.field, e.target.value)}
                         placeholder={current.placeholder}
+                        inputMode={current.type === "tel" ? "numeric" : undefined}
+                        pattern={current.type === "tel" ? "[0-9]*" : undefined}
+                        autoComplete={current.type === "tel" ? "tel" : undefined}
                         autoFocus={shouldAutoFocus}
-                        className="w-full bg-transparent px-4 py-3.5 text-base text-[var(--ink)] outline-none placeholder:text-[var(--ink)]/35 lg:py-4"
+                        className={inputCls}
                       />
-                    </div>
-                  </Field>
-                ) : null}
+                    </Field>
+                  ) : null}
 
-                {current.type === "radio" && current.options ? (
-<<<<<<< HEAD
-<<<<<<< HEAD
-                  <Field error={isOutroSelected ? undefined : errors[current.field]}>
-                    {isOutroSelected ? (
-                      <div className="space-y-2">
-                        <OutroChoice
-                          label={DESAFIO_OUTRO}
-                          checked
-                          value={data.desafioOutro}
-                          error={errors.desafioOutro}
-                          onSelect={() => {}}
-                          onChange={(v) => {
-                            update("desafioOutro", v);
-                            setErrors((err) => ({ ...err, desafioOutro: undefined }));
-                          }}
+                  {current.type === "instagram" ? (
+                    <Field error={errors[current.field]} hint={current.hint}>
+                      <div className="flex w-full items-center overflow-hidden rounded-xl border border-[var(--ink)]/12 bg-white focus-within:border-[#006CFF]/50 focus-within:ring-2 focus-within:ring-[#006CFF]/15">
+                        <span className="border-r border-[var(--ink)]/10 bg-[var(--ink)]/[0.03] px-4 py-3.5 text-base text-[var(--ink)]/45 lg:py-4">
+                          @
+                        </span>
+                        <input
+                          value={data.instagram}
+                          onChange={(e) => update("instagram", e.target.value.replace(/^@/, ""))}
+                          placeholder={current.placeholder}
+                          autoFocus={shouldAutoFocus}
+                          className="w-full bg-transparent px-4 py-3.5 text-base text-[var(--ink)] outline-none placeholder:text-[var(--ink)]/35 lg:py-4"
                         />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            update("desafio", "");
-                            update("desafioOutro", "");
-                            setErrors((e) => ({ ...e, desafio: undefined, desafioOutro: undefined }));
-                          }}
-                          className="text-xs font-medium text-[#006CFF] transition hover:underline sm:text-sm"
-                        >
-                          ← Ver outras opções
-                        </button>
                       </div>
-                    ) : (
-                      <div className="grid gap-1.5 sm:gap-2">
-                        {current.options.map((opt) => {
-                          const isOutro = isDesafioStep && opt === DESAFIO_OUTRO;
+                    </Field>
+                  ) : null}
 
-                          if (isOutro) {
+                  {current.type === "radio" && current.options ? (
+                    <Field error={isOutroSelected ? undefined : errors[current.field]}>
+                      {isOutroSelected ? (
+                        <div className="space-y-2">
+                          <OutroChoice
+                            label={DESAFIO_OUTRO}
+                            checked
+                            value={data.desafioOutro}
+                            error={errors.desafioOutro}
+                            onSelect={() => {}}
+                            onChange={(v) => {
+                              update("desafioOutro", v);
+                              setErrors((err) => ({ ...err, desafioOutro: undefined }));
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              update("desafio", "");
+                              update("desafioOutro", "");
+                              setErrors((e) => ({ ...e, desafio: undefined, desafioOutro: undefined }));
+                            }}
+                            className="text-xs font-medium text-[#006CFF] transition hover:underline sm:text-sm"
+                          >
+                            ← Ver outras opções
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="grid gap-1.5 sm:gap-2">
+                          {current.options.map((opt) => {
+                            const isOutro = isDesafioStep && opt === DESAFIO_OUTRO;
+
+                            if (isOutro) {
+                              return (
+                                <OutroChoice
+                                  key={opt}
+                                  label={opt}
+                                  checked={data.desafio === opt}
+                                  value={data.desafioOutro}
+                                  error={errors.desafioOutro}
+                                  onSelect={() => {
+                                    update("desafio", opt);
+                                    setErrors((e) => ({ ...e, desafio: undefined, desafioOutro: undefined }));
+                                  }}
+                                  onChange={(v) => {
+                                    update("desafioOutro", v);
+                                    setErrors((err) => ({ ...err, desafioOutro: undefined }));
+                                  }}
+                                />
+                              );
+                            }
+
                             return (
-                              <OutroChoice
+                              <Choice
                                 key={opt}
                                 label={opt}
-                                checked={data.desafio === opt}
-                                value={data.desafioOutro}
-                                error={errors.desafioOutro}
-                                onSelect={() => {
-                                  update("desafio", opt);
-                                  setErrors((e) => ({ ...e, desafio: undefined, desafioOutro: undefined }));
-                                }}
-                                onChange={(v) => {
-                                  update("desafioOutro", v);
-                                  setErrors((err) => ({ ...err, desafioOutro: undefined }));
+                                checked={data[current.field] === opt}
+                                onClick={() => {
+                                  if (isDesafioStep) {
+                                    update("desafioOutro", "");
+                                    setErrors((e) => ({ ...e, desafioOutro: undefined }));
+                                  }
+                                  update(current.field, opt);
+                                  setErrors((e) => ({ ...e, [current.field]: undefined }));
                                 }}
                               />
                             );
-                          }
-=======
-                  <Field error={current.field === "desafio" && data.desafio === DESAFIO_OUTRO ? undefined : errors[current.field]}>
-                    <div className="grid gap-1.5 sm:gap-2">
-                      {current.options.map((opt) => {
-                        const isOutro = current.field === "desafio" && opt === DESAFIO_OUTRO;
->>>>>>> parent of 58178fa (2)
+                          })}
+                        </div>
+                      )}
+                    </Field>
+                  ) : null}
+                </div>
+              </div>
 
-                        if (isOutro) {
-                          return (
-                            <OutroChoice
-                              key={opt}
-                              label={opt}
-                              checked={data.desafio === opt}
-                              value={data.desafioOutro}
-                              error={errors.desafioOutro}
-                              onSelect={() => {
-                                update("desafio", opt);
-                                setErrors((e) => ({ ...e, desafio: undefined, desafioOutro: undefined }));
-                              }}
-                              onChange={(v) => {
-                                update("desafioOutro", v);
-                                setErrors((err) => ({ ...err, desafioOutro: undefined }));
-                              }}
-                            />
-                          );
-<<<<<<< HEAD
-                        })}
-                      </div>
-                    )}
-=======
-                  <Field error={errors[current.field]}>
-                    <div className="grid gap-1.5 sm:gap-2">
-                      {current.options.map((opt) => (
-                        <Choice
-                          key={opt}
-                          label={opt}
-                          checked={data[current.field] === opt}
-                          onClick={() => {
-                            if (current.field === "desafio" && opt !== DESAFIO_OUTRO) {
-                              update("desafioOutro", "");
-                              setErrors((e) => ({ ...e, desafioOutro: undefined }));
-                            }
-                            update(current.field, opt);
-                            setErrors((e) => ({ ...e, [current.field]: undefined }));
-                          }}
-                        />
-                      ))}
-                    </div>
-                    {current.field === "desafio" && data.desafio === DESAFIO_OUTRO ? (
-                      <div className="mt-3">
-                        <Field error={errors.desafioOutro}>
-                          <input
-                            type="text"
-                            value={data.desafioOutro}
-                            onChange={(e) => {
-                              update("desafioOutro", e.target.value);
-                              setErrors((err) => ({ ...err, desafioOutro: undefined }));
-                            }}
-                            placeholder="Descreva seu principal desafio"
-                            autoFocus={data.desafioOutro.trim().length === 0}
-                            className={inputCls}
-                          />
-                        </Field>
-                      </div>
-                    ) : null}
->>>>>>> parent of 145708a (Update AnaliseWizard.tsx)
-=======
-                        }
-
-                        return (
-                          <Choice
-                            key={opt}
-                            label={opt}
-                            checked={data[current.field] === opt}
-                            onClick={() => {
-                              if (current.field === "desafio") {
-                                update("desafioOutro", "");
-                                setErrors((e) => ({ ...e, desafioOutro: undefined }));
-                              }
-                              update(current.field, opt);
-                              setErrors((e) => ({ ...e, [current.field]: undefined }));
-                            }}
-                          />
-                        );
-                      })}
-                    </div>
->>>>>>> parent of 58178fa (2)
-                  </Field>
+              <div
+                className={cn(
+                  "flex shrink-0 flex-col gap-3 pt-2 sm:pt-4",
+                  "max-lg:fixed max-lg:inset-x-0 max-lg:z-[110] max-lg:border-t max-lg:border-[var(--ink)]/8",
+                  "max-lg:bg-[var(--paper)]/95 max-lg:px-5 max-lg:pb-[max(0.75rem,env(safe-area-inset-bottom))] max-lg:pt-3 max-lg:backdrop-blur-sm",
+                  "lg:relative lg:z-auto lg:border-0 lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-2",
+                )}
+                style={{ bottom: keyboardInset }}
+              >
+                {isLast ? (
+                  <PrivacyConsentField
+                    checked={data.consentimentoPrivacidade}
+                    error={errors.consentimentoPrivacidade ?? submitError ?? undefined}
+                    onCheckedChange={(checked) => {
+                      update("consentimentoPrivacidade", checked);
+                      setSubmitError(null);
+                    }}
+                  />
                 ) : null}
+                <div className="flex items-center justify-end">
+                  <button
+                    type="submit"
+                    className="group inline-flex items-center gap-2 rounded-full bg-gradient-brand px-5 py-3 text-[13px] font-semibold uppercase tracking-wide whitespace-nowrap text-[#031225] shadow-[0_16px_48px_-16px_rgba(0,108,255,0.55)] transition hover:scale-[1.02] sm:px-8 sm:py-4 sm:text-base"
+                  >
+                    {isLast ? "Quero receber minha análise gratuita" : "Prosseguir"}
+                    <span className="transition duration-300 group-hover:translate-x-0.5">→</span>
+                  </button>
+                </div>
               </div>
             </div>
-
-<<<<<<< HEAD
-            <div
-              className={cn(
-                "flex shrink-0 flex-col gap-3 pt-2 sm:pt-4",
-                "max-lg:fixed max-lg:inset-x-0 max-lg:z-[110] max-lg:border-t max-lg:border-[var(--ink)]/8",
-                "max-lg:bg-[var(--paper)]/95 max-lg:px-5 max-lg:pb-[max(0.75rem,env(safe-area-inset-bottom))] max-lg:pt-3 max-lg:backdrop-blur-sm",
-                "lg:relative lg:z-auto lg:border-0 lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-2",
-              )}
-              style={{ bottom: keyboardInset }}
-            >
-=======
-            <div className="flex shrink-0 flex-col gap-3 pt-2 sm:pt-4">
->>>>>>> parent of 58178fa (2)
-              {isLast ? (
-                <PrivacyConsentField
-                  checked={data.consentimentoPrivacidade}
-                  error={errors.consentimentoPrivacidade ?? submitError ?? undefined}
-                  onCheckedChange={(checked) => {
-                    update("consentimentoPrivacidade", checked);
-                    setSubmitError(null);
-                  }}
-                />
-              ) : null}
-              <div className="flex items-center justify-end">
-                <button
-                  type="submit"
-                  className="group inline-flex items-center gap-2 rounded-full bg-gradient-brand px-5 py-3 text-[13px] font-semibold uppercase tracking-wide whitespace-nowrap text-[#031225] shadow-[0_16px_48px_-16px_rgba(0,108,255,0.55)] transition hover:scale-[1.02] sm:px-8 sm:py-4 sm:text-base"
-                >
-                  {isLast ? "Quero receber minha análise gratuita" : "Prosseguir"}
-                  <span className="transition duration-300 group-hover:translate-x-0.5">→</span>
-                </button>
-              </div>
-            </div>
-          </div>
           </form>
 
           {step === 0 ? <EntregaveisCard /> : null}
@@ -460,19 +398,74 @@ function Choice({ label, checked, onClick }: { label: string; checked: boolean; 
       )}
     >
       <span>{label}</span>
-      <span
-        className={cn(
-          "grid h-5 w-5 shrink-0 place-items-center rounded-full border transition",
-          checked ? "border-[#006CFF] bg-[#006CFF] text-white" : "border-[var(--ink)]/20",
-        )}
-      >
-        {checked ? (
-          <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden>
-            <path d="M2 6l3 3 5-5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-          </svg>
-        ) : null}
-      </span>
+      <ChoiceIndicator checked={checked} />
     </button>
+  );
+}
+
+function OutroChoice({
+  label,
+  checked,
+  value,
+  error,
+  onSelect,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  value: string;
+  error?: string;
+  onSelect: () => void;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div
+      className={cn(
+        "overflow-hidden rounded-xl border text-left transition",
+        checked
+          ? "border-[#006CFF]/40 bg-[#006CFF]/[0.06] text-[var(--ink)]"
+          : "border-[var(--ink)]/10 bg-white text-[var(--ink)]/75",
+      )}
+    >
+      <button
+        type="button"
+        onClick={onSelect}
+        className="flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-[13px] transition sm:gap-4 sm:px-5 sm:py-4 sm:text-sm"
+      >
+        <span>{label}</span>
+        <ChoiceIndicator checked={checked} />
+      </button>
+      {checked ? (
+        <div className="border-t border-[#006CFF]/15 px-3.5 pb-3 pt-2 sm:px-5 sm:pb-4 sm:pt-3">
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="Descreva seu principal desafio"
+            autoFocus={value.trim().length === 0}
+            className="w-full rounded-lg border border-[var(--ink)]/12 bg-white px-3 py-2.5 text-sm text-[var(--ink)] outline-none transition placeholder:text-[var(--ink)]/35 focus:border-[#006CFF]/50 focus:ring-2 focus:ring-[#006CFF]/15 sm:px-4 sm:py-3 sm:text-base"
+          />
+          {error ? <p className="mt-2 text-xs text-[#E85D6F]">{error}</p> : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ChoiceIndicator({ checked }: { checked: boolean }) {
+  return (
+    <span
+      className={cn(
+        "grid h-5 w-5 shrink-0 place-items-center rounded-full border transition",
+        checked ? "border-[#006CFF] bg-[#006CFF] text-white" : "border-[var(--ink)]/20",
+      )}
+    >
+      {checked ? (
+        <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden>
+          <path d="M2 6l3 3 5-5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+        </svg>
+      ) : null}
+    </span>
   );
 }
 
