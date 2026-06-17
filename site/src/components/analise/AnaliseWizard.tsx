@@ -14,6 +14,7 @@ import {
 import { AnaliseFormChrome } from "./AnaliseFormChrome";
 import { AnaliseSubmitAnimation } from "./AnaliseSubmitAnimation";
 import { Checkbox } from "@/components/ui/checkbox";
+import { submitLead } from "@/lib/api/submit-lead";
 import { LEGAL } from "@/lib/legal-config";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +29,10 @@ export function AnaliseWizard() {
   >({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [animKey, setAnimKey] = useState(0);
+  const [submitSucceeded, setSubmitSucceeded] = useState(false);
+  const [animationDone, setAnimationDone] = useState(false);
 
   const current = ANALISE_STEPS[step];
   const isLast = step === TOTAL_STEPS - 1;
@@ -67,8 +71,37 @@ export function AnaliseWizard() {
         setErrors(errs);
         return;
       }
-      // Quando backend existir: enviar consentimentoAt, privacyPolicyVersion junto ao payload
+      // Envia para API durante a animação de submit
+      setSubmitError(null);
+      setSubmitSucceeded(false);
+      setAnimationDone(false);
       setSubmitting(true);
+
+      const consentedAt = new Date().toISOString();
+      void submitLead({
+        data: {
+          nome: full.data.nome,
+          whatsapp: full.data.whatsapp,
+          empresa: full.data.empresa,
+          segmento: full.data.segmento,
+          instagram: full.data.instagram,
+          faturamento: full.data.faturamento,
+          desafio: full.data.desafio,
+          desafioOutro: full.data.desafioOutro,
+          privacyPolicyVersion: LEGAL.privacyPolicyVersion,
+          consentedAt,
+        },
+      })
+        .then(() => setSubmitSucceeded(true))
+        .catch((err: unknown) => {
+          setSubmitting(false);
+          const raw = err instanceof Error ? err.message : String(err);
+          const friendly =
+            raw.includes("<!doctype html>") || raw.includes("This page didn't load")
+              ? "Não foi possível enviar sua solicitação. Tente novamente em instantes."
+              : raw || "Não foi possível enviar sua solicitação. Tente novamente.";
+          setSubmitError(friendly);
+        });
       return;
     }
 
@@ -77,9 +110,15 @@ export function AnaliseWizard() {
   }, [step, data, isLast, submitted, submitting]);
 
   const handleSubmitComplete = useCallback(() => {
-    setSubmitting(false);
-    setSubmitted(true);
+    setAnimationDone(true);
   }, []);
+
+  useEffect(() => {
+    if (animationDone && submitSucceeded) {
+      setSubmitting(false);
+      setSubmitted(true);
+    }
+  }, [animationDone, submitSucceeded]);
 
   const back = useCallback(() => {
     if (step > 0 && !submitted && !submitting) {
@@ -205,9 +244,10 @@ export function AnaliseWizard() {
               {isLast ? (
                 <PrivacyConsentField
                   checked={data.consentimentoPrivacidade}
-                  error={errors.consentimentoPrivacidade}
+                  error={errors.consentimentoPrivacidade ?? submitError ?? undefined}
                   onCheckedChange={(checked) => {
                     update("consentimentoPrivacidade", checked);
+                    setSubmitError(null);
                   }}
                 />
               ) : null}

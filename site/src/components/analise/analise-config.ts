@@ -1,4 +1,10 @@
 import { z } from "zod";
+import {
+  DESAFIO_OUTRO,
+  leadFormFieldsSchema,
+} from "@agencia-toro/shared";
+
+export { DESAFIO_OUTRO } from "@agencia-toro/shared";
 
 export const FAIXAS = [
   "Até R$ 10 mil",
@@ -7,8 +13,6 @@ export const FAIXAS = [
   "De R$ 50 mil a R$ 100 mil",
   "Acima de R$ 100 mil",
 ] as const;
-
-export const DESAFIO_OUTRO = "Outro";
 
 export const DESAFIOS = [
   "Conseguir mais pacientes/clientes",
@@ -38,15 +42,7 @@ export const ENTREGAVEIS = [
   "Direcionamento estratégico personalizado, sem compromisso",
 ] as const;
 
-const analiseFieldsSchema = z.object({
-  nome: z.string().trim().min(2, "Informe seu nome completo").max(120),
-  whatsapp: z.string().trim().min(10, "WhatsApp inválido").max(20),
-  empresa: z.string().trim().min(2, "Informe o nome da empresa").max(120),
-  segmento: z.string().trim().min(2, "Informe o segmento").max(80),
-  instagram: z.string().trim().max(60).optional().or(z.literal("")),
-  faturamento: z.string().min(1, "Selecione uma faixa"),
-  desafio: z.string().min(1, "Selecione um desafio"),
-  desafioOutro: z.string().trim().max(200).optional().or(z.literal("")),
+const analiseFieldsSchema = leadFormFieldsSchema.extend({
   consentimentoPrivacidade: z.boolean().refine((v) => v === true, {
     message: "É necessário aceitar a Política de Privacidade para continuar.",
   }),

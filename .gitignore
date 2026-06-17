@@ -29,4 +29,8 @@ dist-ssr
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
+api/data
+api/.env
+crm/.env
+site/.env
+
