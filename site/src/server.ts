@@ -44,8 +44,16 @@ export default {
     applyWorkerRuntimeEnv(env);
 
     const { pathname } = new URL(request.url);
-    if (pathname === "/lead-ingest") {
-      return handleSubmitLeadRequest(request);
+    if (pathname === "/lead-ingest" || pathname === "/lead-ingest/") {
+      try {
+        return await handleSubmitLeadRequest(request);
+      } catch (error) {
+        console.error("[lead-ingest]", error);
+        return new Response(
+          JSON.stringify({ error: "Não foi possível enviar sua solicitação. Tente novamente em instantes." }),
+          { status: 500, headers: { "content-type": "application/json; charset=utf-8" } },
+        );
+      }
     }
 
     try {
