@@ -1,3 +1,5 @@
+# Nome DEVE ser igual ao Worker no Cloudflare Dashboard (agencia-toro-site).
+# Se divergir, o bot cloudflare-workers-and-pages cria um 2º deploy automático.
 name = "agencia-toro-site"
 compatibility_date = "2026-06-17"
 compatibility_flags = ["nodejs_compat"]
@@ -9,8 +11,12 @@ binding = "ASSETS"
 
 [vars]
 API_URL = "https://api.agenciatoro.com.br"
-# LEAD_INGEST_SECRET: configure como Secret no Cloudflare (Dashboard ou wrangler secret put).
-# Deve ser o MESMO valor de LEAD_INGEST_SECRET no deploy/.env da API.
+
+# LEAD_INGEST_SECRET: use SECRET (Encrypt) no Dashboard — NÃO "Variable" em texto.
+# Variables em texto somem a cada deploy do Git; Secrets persistem.
+# Dashboard → Workers → agencia-toro-site → Settings → Variables → Add → Encrypt
+# Nome: LEAD_INGEST_SECRET | Valor: igual ao deploy/.env da API
+# Deploy manual: npx wrangler secret put LEAD_INGEST_SECRET
 
 [observability]
 enabled = true

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ReelsPlayer } from "./na-pratica/ReelsPlayer";
 import { useInView } from "@/hooks/use-in-view";
 import { cn } from "@/lib/utils";
@@ -53,23 +53,41 @@ function CenarioRow({
 
 export function NaPratica() {
   const sectionRef = useRef<HTMLElement>(null);
+  const [reelsActive, setReelsActive] = useState(false);
 
   useEffect(() => {
     const section = sectionRef.current;
     const mq = window.matchMedia("(max-width: 1023px)");
-    if (!section || !mq.matches) return;
+    if (!section) return;
+
+    const updateActive = (entry: IntersectionObserverEntry) => {
+      const active = entry.isIntersecting && entry.intersectionRatio >= 0.2;
+      setReelsActive(active);
+      if (mq.matches) {
+        document.body.classList.toggle("reels-immersive", entry.isIntersecting && entry.intersectionRatio >= 0.55);
+      }
+    };
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        document.body.classList.toggle("reels-immersive", entry.isIntersecting && entry.intersectionRatio >= 0.55);
+        if (entry) updateActive(entry);
       },
-      { threshold: [0, 0.35, 0.55, 0.75, 1] },
+      { threshold: [0, 0.2, 0.35, 0.55, 0.75, 1] },
     );
 
     observer.observe(section);
 
+    const rect = section.getBoundingClientRect();
+    const visible = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0));
+    const ratio = rect.height > 0 ? visible / rect.height : 0;
+    if (ratio >= 0.2) {
+      setReelsActive(true);
+    }
+
     const onChange = () => {
-      if (!mq.matches) document.body.classList.remove("reels-immersive");
+      if (!mq.matches) {
+        document.body.classList.remove("reels-immersive");
+      }
     };
     mq.addEventListener("change", onChange);
 
@@ -92,7 +110,7 @@ export function NaPratica() {
     >
       {/* Mobile — Reels em tela cheia */}
       <div className="absolute inset-0 touch-pan-y lg:hidden">
-        <ReelsPlayer variant="mobile" fullscreen />
+        <ReelsPlayer variant="mobile" fullscreen active={reelsActive} />
       </div>
 
       {/* Desktop */}
@@ -176,7 +194,7 @@ export function NaPratica() {
                   </div>
                 </div>
 
-                <ReelsPlayer variant="desktop" className="relative z-10" />
+                <ReelsPlayer variant="desktop" className="relative z-10" active />
               </div>
             </div>
           </div>

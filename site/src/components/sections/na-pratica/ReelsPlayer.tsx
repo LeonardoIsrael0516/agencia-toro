@@ -7,6 +7,7 @@ import { NA_PRATICA_VIDEO_SRC } from "@/lib/na-pratica-video";
 type ReelsPlayerProps = {
   variant: "mobile" | "desktop";
   fullscreen?: boolean;
+  active?: boolean;
   className?: string;
 };
 
@@ -60,7 +61,7 @@ function ReelsAction({
   );
 }
 
-export function ReelsPlayer({ variant, fullscreen = false, className }: ReelsPlayerProps) {
+export function ReelsPlayer({ variant, fullscreen = false, active = true, className }: ReelsPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
@@ -85,12 +86,19 @@ export function ReelsPlayer({ variant, fullscreen = false, className }: ReelsPla
     void video.play().catch(() => {});
   }, []);
 
+  const pauseAndReset = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.pause();
+    userUnmutedRef.current = false;
+    video.muted = true;
+    setMuted(true);
+  }, []);
+
   useEffect(() => {
     const video = videoRef.current;
-    const container = containerRef.current;
-    if (!video || !container) return;
+    if (!video) return;
 
-    userUnmutedRef.current = false;
     video.muted = true;
     setMuted(true);
 
@@ -98,31 +106,26 @@ export function ReelsPlayer({ variant, fullscreen = false, className }: ReelsPla
       if (video.duration > 0) setProgress(video.currentTime / video.duration);
     };
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting && entry.intersectionRatio >= 0.35) {
-          playMuted();
-        } else {
-          video.pause();
-          userUnmutedRef.current = false;
-          video.muted = true;
-          setMuted(true);
-        }
-      },
-      { threshold: [0, 0.15, 0.35, 0.5, 0.75] },
-    );
+    const onReady = () => {
+      if (active) playMuted();
+    };
 
-    observer.observe(container);
-    playMuted();
-
-    video.addEventListener("canplay", playMuted);
+    video.addEventListener("loadeddata", onReady);
+    video.addEventListener("canplay", onReady);
     video.addEventListener("timeupdate", onTimeUpdate);
+
+    if (active) {
+      playMuted();
+    } else {
+      pauseAndReset();
+    }
+
     return () => {
-      observer.disconnect();
-      video.removeEventListener("canplay", playMuted);
+      video.removeEventListener("loadeddata", onReady);
+      video.removeEventListener("canplay", onReady);
       video.removeEventListener("timeupdate", onTimeUpdate);
     };
-  }, [playMuted]);
+  }, [active, playMuted, pauseAndReset]);
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -216,6 +219,7 @@ export function ReelsPlayer({ variant, fullscreen = false, className }: ReelsPla
             muted={muted}
             playsInline
             preload="auto"
+            disablePictureInPicture
           >
             <track kind="captions" />
           </video>
