@@ -1,7 +1,7 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
-import { useSiteHeaderState } from "@/hooks/use-site-header-state";
+import { useOverLightSection } from "@/hooks/use-over-light-section";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -13,10 +13,20 @@ const nav = [
 ];
 
 export function SiteHeader() {
+  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isHome = pathname === "/" || pathname === "";
-  const { light, showBar, bar } = useSiteHeaderState(isHome);
+  const overLight = useOverLightSection();
+  const light = overLight;
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 16);
+      if (window.scrollY > 16) setOpen(false);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -29,21 +39,19 @@ export function SiteHeader() {
     };
   }, [open]);
 
-  useEffect(() => {
-    const closeOnScroll = () => {
-      if (getScrollY() > 12) setOpen(false);
-    };
-    window.addEventListener("scroll", closeOnScroll, { passive: true });
-    return () => window.removeEventListener("scroll", closeOnScroll);
-  }, []);
+  const showBar = scrolled || light;
 
   return (
     <header
       data-site-header
-      data-home={isHome ? "true" : undefined}
-      data-bar={bar}
-      data-over-light={light ? "true" : undefined}
-      className="fixed inset-x-0 top-0 z-50"
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
+        !showBar && "bg-transparent",
+        showBar && !light && "border-b border-white/[0.06] bg-background/75 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.45)] backdrop-blur-2xl",
+        showBar &&
+          light &&
+          "border-b border-[var(--ink)]/10 bg-[var(--paper)]/88 shadow-[0_8px_30px_-10px_rgba(3,18,37,0.1)] backdrop-blur-2xl",
+      )}
     >
       {light && showBar && (
         <div
@@ -62,9 +70,7 @@ export function SiteHeader() {
               href={item.href}
               className={cn(
                 "group relative rounded-full px-4 py-2 text-sm transition-colors",
-                light && showBar
-                  ? "text-[var(--ink)]/60 hover:text-[var(--ink)]"
-                  : "text-foreground/65 hover:text-foreground",
+                light ? "text-[var(--ink)]/60 hover:text-[var(--ink)]" : "text-foreground/65 hover:text-foreground",
               )}
             >
               {item.label}
@@ -89,7 +95,7 @@ export function SiteHeader() {
             aria-expanded={open}
             className={cn(
               "inline-flex h-10 w-10 items-center justify-center rounded-full border transition lg:hidden",
-              light && showBar
+              light
                 ? open
                   ? "border-[#006CFF]/30 bg-[var(--ink)]/5"
                   : "border-[var(--ink)]/15 hover:border-[var(--ink)]/25 hover:bg-[var(--ink)]/5"
@@ -102,21 +108,21 @@ export function SiteHeader() {
               <span
                 className={cn(
                   "absolute left-0 top-0 h-0.5 w-5 rounded-full transition-all duration-300",
-                  light && showBar ? "bg-[var(--ink)]" : "bg-foreground",
+                  light ? "bg-[var(--ink)]" : "bg-foreground",
                   open && "translate-y-1.5 rotate-45",
                 )}
               />
               <span
                 className={cn(
                   "absolute left-0 top-1/2 h-0.5 w-5 -translate-y-1/2 rounded-full transition-all duration-300",
-                  light && showBar ? "bg-[var(--ink)]" : "bg-foreground",
+                  light ? "bg-[var(--ink)]" : "bg-foreground",
                   open && "scale-x-0 opacity-0",
                 )}
               />
               <span
                 className={cn(
                   "absolute bottom-0 left-0 h-0.5 w-5 rounded-full transition-all duration-300",
-                  light && showBar ? "bg-[var(--ink)]" : "bg-foreground",
+                  light ? "bg-[var(--ink)]" : "bg-foreground",
                   open && "-translate-y-1 -rotate-45",
                 )}
               />
@@ -128,9 +134,7 @@ export function SiteHeader() {
       <div
         className={cn(
           "overflow-hidden backdrop-blur-2xl transition-all duration-300 lg:hidden",
-          light && showBar
-            ? "border-t border-[var(--ink)]/10 bg-[var(--paper)]/95"
-            : "border-t border-white/5 bg-background/95",
+          light ? "border-t border-[var(--ink)]/10 bg-[var(--paper)]/95" : "border-t border-white/5 bg-background/95",
           open ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0",
         )}
       >
@@ -142,7 +146,7 @@ export function SiteHeader() {
               onClick={() => setOpen(false)}
               className={cn(
                 "rounded-xl px-3 py-3 text-base transition",
-                light && showBar
+                light
                   ? "text-[var(--ink)]/80 hover:bg-[var(--ink)]/5 hover:text-[var(--ink)]"
                   : "text-foreground/80 hover:bg-white/5 hover:text-foreground",
               )}
@@ -161,8 +165,4 @@ export function SiteHeader() {
       </div>
     </header>
   );
-}
-
-function getScrollY() {
-  return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
 }
