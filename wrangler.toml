@@ -1,6 +1,6 @@
 # Nome DEVE ser igual ao Worker no Cloudflare Dashboard (agencia-toro-site).
 # Se divergir, o bot cloudflare-workers-and-pages cria um 2º deploy automático.
-name = "agencia-toro-site"
+name = "agencia-toro"
 compatibility_date = "2026-06-17"
 compatibility_flags = ["nodejs_compat"]
 main = "site/.output/server/index.mjs"
