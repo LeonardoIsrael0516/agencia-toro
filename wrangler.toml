@@ -9,6 +9,8 @@ binding = "ASSETS"
 
 [vars]
 API_URL = "https://api.agenciatoro.com.br"
+# LEAD_INGEST_SECRET: configure como Secret no Cloudflare (Dashboard ou wrangler secret put).
+# Deve ser o MESMO valor de LEAD_INGEST_SECRET no deploy/.env da API.
 
 [observability]
 enabled = true

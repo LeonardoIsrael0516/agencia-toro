@@ -1,4 +1,4 @@
-import { applyWorkerRuntimeEnv } from "./lib/runtime-env";
+import { applyWorkerRuntimeEnv, listWorkerEnvKeys, readWorkerEnv } from "./lib/runtime-env";
 import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
@@ -40,10 +40,22 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
-    applyWorkerRuntimeEnv(env);
+    const resolvedEnv =
+      env && typeof env === "object"
+        ? env
+        : (globalThis as typeof globalThis & { __env__?: unknown }).__env__;
+    applyWorkerRuntimeEnv(resolvedEnv);
 
     const { pathname } = new URL(request.url);
     if (pathname === "/lead-ingest" || pathname === "/lead-ingest/") {
+      if (request.method === "GET") {
+        return Response.json({
+          hasApiUrl: Boolean(readWorkerEnv("API_URL")),
+          hasLeadIngestSecret: Boolean(readWorkerEnv("LEAD_INGEST_SECRET")),
+          envKeys: listWorkerEnvKeys(),
+        });
+      }
+
       try {
         const { handleSubmitLeadRequest } = await import("./lib/api/submit-lead-http");
         return await handleSubmitLeadRequest(request);

@@ -2,6 +2,7 @@ import { DESAFIO_OUTRO, leadFormFieldsSchema } from "@agencia-toro/shared";
 import { z } from "zod";
 
 import { getServerConfig } from "../config.server";
+import { listWorkerEnvKeys } from "../runtime-env";
 
 export const submitLeadInput = leadFormFieldsSchema
   .extend({
@@ -38,7 +39,10 @@ export async function ingestLeadToApi(data: SubmitLeadInput): Promise<{ ok: true
   const config = getServerConfig();
 
   if (!config.leadIngestSecret) {
-    console.error("[submit-lead] LEAD_INGEST_SECRET ausente no Worker");
+    console.error(
+      "[submit-lead] LEAD_INGEST_SECRET ausente no Worker. Env keys:",
+      listWorkerEnvKeys().join(", ") || "(nenhuma)",
+    );
     throw new SubmitLeadError("Serviço temporariamente indisponível. Tente novamente em instantes.", 503);
   }
 
