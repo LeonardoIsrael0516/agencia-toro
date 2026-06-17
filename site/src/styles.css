@@ -285,11 +285,15 @@
   html.home-reels-snap {
     scroll-snap-type: y proximity;
     overscroll-behavior-y: contain;
+    scroll-padding-top: 0;
+    scroll-padding-bottom: 0;
   }
 
   .snap-section-reels {
     scroll-snap-align: start;
     scroll-snap-stop: normal;
+    scroll-margin-top: 0;
+    scroll-margin-bottom: 0;
   }
 
   .snap-section-next {
