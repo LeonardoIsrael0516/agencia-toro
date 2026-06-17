@@ -1,4 +1,5 @@
 import { applyWorkerRuntimeEnv } from "./lib/runtime-env";
+import { handleSubmitLeadRequest } from "./lib/api/submit-lead-http";
 import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
@@ -41,6 +42,12 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     applyWorkerRuntimeEnv(env);
+
+    const { pathname } = new URL(request.url);
+    if (pathname === "/lead-ingest") {
+      return handleSubmitLeadRequest(request);
+    }
+
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

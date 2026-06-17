@@ -15,7 +15,7 @@ import { AnaliseFormChrome } from "./AnaliseFormChrome";
 import { AnaliseSubmitAnimation } from "./AnaliseSubmitAnimation";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useMobileKeyboardInset } from "@/hooks/use-mobile-keyboard-inset";
-import { submitLead } from "@/lib/api/submit-lead";
+import { submitLeadFromClient } from "@/lib/api/submit-lead-client";
 import { LEGAL } from "@/lib/legal-config";
 import { cn } from "@/lib/utils";
 
@@ -82,19 +82,17 @@ export function AnaliseWizard() {
       setSubmitting(true);
 
       const consentedAt = new Date().toISOString();
-      void submitLead({
-        data: {
-          nome: full.data.nome,
-          whatsapp: full.data.whatsapp,
-          empresa: full.data.empresa,
-          segmento: full.data.segmento,
-          instagram: full.data.instagram,
-          faturamento: full.data.faturamento,
-          desafio: full.data.desafio,
-          desafioOutro: full.data.desafioOutro,
-          privacyPolicyVersion: LEGAL.privacyPolicyVersion,
-          consentedAt,
-        },
+      void submitLeadFromClient({
+        nome: full.data.nome,
+        whatsapp: full.data.whatsapp,
+        empresa: full.data.empresa,
+        segmento: full.data.segmento,
+        instagram: full.data.instagram,
+        faturamento: full.data.faturamento,
+        desafio: full.data.desafio,
+        desafioOutro: full.data.desafioOutro,
+        privacyPolicyVersion: LEGAL.privacyPolicyVersion,
+        consentedAt,
       })
         .then(() => setSubmitSucceeded(true))
         .catch((err: unknown) => {
