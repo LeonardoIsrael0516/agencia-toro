@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { hasConsentDecision, setCookieConsent } from "@/lib/cookie-consent";
 import { loadAnalyticsIfConsented } from "@/lib/analytics-loader";
@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const hideOnAnalise = pathname === "/analise";
 
   useEffect(() => {
     setVisible(!hasConsentDecision());
@@ -17,7 +19,7 @@ export function CookieBanner() {
     if (analytics) loadAnalyticsIfConsented();
   }
 
-  if (!visible) return null;
+  if (!visible || hideOnAnalise) return null;
 
   return (
     <div

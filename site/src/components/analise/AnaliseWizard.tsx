@@ -155,6 +155,13 @@ export function AnaliseWizard() {
         <AnaliseSubmitAnimation onComplete={handleSubmitComplete} />
       ) : (
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:overflow-hidden">
+          <form
+            className="flex min-h-0 flex-1 flex-col"
+            onSubmit={(e) => {
+              e.preventDefault();
+              next();
+            }}
+          >
           <div
             key={animKey}
             className="flex min-h-0 flex-1 flex-col animate-in fade-in slide-in-from-bottom-2 duration-300"
@@ -292,9 +299,9 @@ export function AnaliseWizard() {
             <div
               className={cn(
                 "flex shrink-0 flex-col gap-3 pt-2 sm:pt-4",
-                "max-lg:fixed max-lg:inset-x-0 max-lg:z-40 max-lg:border-t max-lg:border-[var(--ink)]/8",
+                "max-lg:fixed max-lg:inset-x-0 max-lg:z-[110] max-lg:border-t max-lg:border-[var(--ink)]/8",
                 "max-lg:bg-[var(--paper)]/95 max-lg:px-5 max-lg:pb-[max(0.75rem,env(safe-area-inset-bottom))] max-lg:pt-3 max-lg:backdrop-blur-sm",
-                "lg:relative lg:border-0 lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-2",
+                "lg:relative lg:z-auto lg:border-0 lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-2",
               )}
               style={{ bottom: keyboardInset }}
             >
@@ -310,8 +317,7 @@ export function AnaliseWizard() {
               ) : null}
               <div className="flex items-center justify-end">
                 <button
-                  type="button"
-                  onClick={next}
+                  type="submit"
                   className="group inline-flex items-center gap-2 rounded-full bg-gradient-brand px-5 py-3 text-[13px] font-semibold uppercase tracking-wide whitespace-nowrap text-[#031225] shadow-[0_16px_48px_-16px_rgba(0,108,255,0.55)] transition hover:scale-[1.02] sm:px-8 sm:py-4 sm:text-base"
                 >
                   {isLast ? "Quero receber minha análise gratuita" : "Prosseguir"}
@@ -320,6 +326,7 @@ export function AnaliseWizard() {
               </div>
             </div>
           </div>
+          </form>
 
           {step === 0 ? <EntregaveisCard /> : null}
         </div>

@@ -289,9 +289,8 @@
   }
 
   body.reels-immersive [data-site-header] {
-    opacity: 0;
+    opacity: 0.35;
     pointer-events: none;
-    transform: translateY(-110%);
   }
 }
 

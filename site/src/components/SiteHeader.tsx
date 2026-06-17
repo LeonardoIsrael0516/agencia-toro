@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 import { useOverLightSection } from "@/hooks/use-over-light-section";
@@ -17,6 +17,8 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const overLight = useOverLightSection();
   const light = overLight;
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isHome = pathname === "/";
 
   useEffect(() => {
     const onScroll = () => {
@@ -39,7 +41,7 @@ export function SiteHeader() {
     };
   }, [open]);
 
-  const showBar = scrolled || light;
+  const showBar = !isHome || scrolled || light;
 
   return (
     <header

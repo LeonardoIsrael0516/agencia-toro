@@ -6,6 +6,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -125,10 +126,19 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
     loadAnalyticsIfConsented();
   }, []);
+
+  useEffect(() => {
+    document.body.classList.remove("reels-immersive");
+    if (pathname !== "/analise") {
+      document.body.style.overflow = "";
+      document.body.style.height = "";
+    }
+  }, [pathname]);
 
   return (
     <QueryClientProvider client={queryClient}>
