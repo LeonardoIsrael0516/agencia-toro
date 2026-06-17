@@ -15,6 +15,7 @@ import favicon from "../assets/favicon.png?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CookieBanner } from "../components/legal/CookieBanner";
 import { loadAnalyticsIfConsented } from "../lib/analytics-loader";
+import { SITE_HEADER_SCROLL_INLINE } from "../lib/site-header-scroll";
 
 function NotFoundComponent() {
   return (
@@ -118,6 +119,7 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <script dangerouslySetInnerHTML={{ __html: SITE_HEADER_SCROLL_INLINE }} />
         <Scripts />
       </body>
     </html>

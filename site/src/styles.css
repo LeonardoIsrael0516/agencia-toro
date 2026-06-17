@@ -295,6 +295,79 @@
   }
 }
 
+/* Header — estados via data-* (CSS + script vanilla; funciona em SSR/produção) */
+[data-site-header] {
+  transition:
+    background-color 0.5s ease,
+    border-color 0.5s ease,
+    box-shadow 0.5s ease,
+    backdrop-filter 0.5s ease;
+}
+
+[data-site-header]:not([data-show-bar="true"]) {
+  background-color: transparent;
+  border-bottom: 1px solid transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+[data-site-header][data-show-bar="true"]:not([data-light="true"]) {
+  background-color: color-mix(in oklab, var(--background) 75%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, white 6%, transparent);
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(24px);
+}
+
+[data-site-header][data-show-bar="true"][data-light="true"] {
+  background-color: color-mix(in oklab, var(--paper) 88%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
+  box-shadow: 0 8px 30px -10px rgba(3, 18, 37, 0.1);
+  backdrop-filter: blur(24px);
+}
+
+[data-site-header][data-show-bar="true"][data-light="true"]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 2px;
+  background-image: var(--gradient-brand);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+[data-site-header]:not([data-light="true"]) .site-header-logo-on-dark {
+  opacity: 1;
+}
+
+[data-site-header]:not([data-light="true"]) .site-header-logo-on-light {
+  opacity: 0;
+}
+
+[data-site-header][data-light="true"] .site-header-logo-on-dark {
+  opacity: 0;
+}
+
+[data-site-header][data-light="true"] .site-header-logo-on-light {
+  opacity: 1;
+}
+
+[data-site-header]:not([data-light="true"]) .site-header-nav-link {
+  color: color-mix(in oklab, var(--foreground) 65%, transparent);
+}
+
+[data-site-header]:not([data-light="true"]) .site-header-nav-link:hover {
+  color: var(--foreground);
+}
+
+[data-site-header][data-light="true"] .site-header-nav-link {
+  color: color-mix(in oklab, var(--ink) 60%, transparent);
+}
+
+[data-site-header][data-light="true"] .site-header-nav-link:hover {
+  color: var(--ink);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html.home-reels-snap {
     scroll-behavior: auto;

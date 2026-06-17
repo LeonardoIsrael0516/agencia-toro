@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 import { useOverLightSection } from "@/hooks/use-over-light-section";
+import { SCROLL_THRESHOLD } from "@/lib/site-header-scroll";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -13,17 +14,13 @@ const nav = [
 ];
 
 export function SiteHeader() {
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const overLight = useOverLightSection();
-  const light = overLight;
+  const light = useOverLightSection();
 
   useEffect(() => {
     const onScroll = () => {
-      setScrolled(window.scrollY > 16);
-      if (window.scrollY > 16) setOpen(false);
+      if (window.scrollY > SCROLL_THRESHOLD) setOpen(false);
     };
-    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -39,27 +36,8 @@ export function SiteHeader() {
     };
   }, [open]);
 
-  const showBar = scrolled || light;
-
   return (
-    <header
-      data-site-header
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-        !showBar && "bg-transparent",
-        showBar && !light && "border-b border-white/[0.06] bg-background/75 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.45)] backdrop-blur-2xl",
-        showBar &&
-          light &&
-          "border-b border-[var(--ink)]/10 bg-[var(--paper)]/88 shadow-[0_8px_30px_-10px_rgba(3,18,37,0.1)] backdrop-blur-2xl",
-      )}
-    >
-      {light && showBar && (
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] bg-gradient-brand opacity-80"
-          aria-hidden
-        />
-      )}
-
+    <header data-site-header className="fixed inset-x-0 top-0 z-50">
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-6 py-3.5 lg:px-10 lg:py-4">
         <Logo size="md" theme={light ? "light" : "dark"} />
 
@@ -68,10 +46,7 @@ export function SiteHeader() {
             <a
               key={item.href}
               href={item.href}
-              className={cn(
-                "group relative rounded-full px-4 py-2 text-sm transition-colors",
-                light ? "text-[var(--ink)]/60 hover:text-[var(--ink)]" : "text-foreground/65 hover:text-foreground",
-              )}
+              className="site-header-nav-link group relative rounded-full px-4 py-2 text-sm transition-colors"
             >
               {item.label}
               <span className="absolute inset-x-4 -bottom-px h-px origin-center scale-x-0 bg-gradient-brand transition-transform duration-300 group-hover:scale-x-100" />

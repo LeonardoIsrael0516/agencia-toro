@@ -1,34 +1,24 @@
 import { useEffect, useState } from "react";
-
-const HEADER_PROBE = 72;
+import { updateSiteHeaderAttributes } from "@/lib/site-header-scroll";
 
 export function useOverLightSection() {
   const [overLight, setOverLight] = useState(false);
 
   useEffect(() => {
-    const check = () => {
-      const sections = document.querySelectorAll(".section-light, .section-muted");
-      if (!sections.length) {
-        setOverLight(false);
-        return;
-      }
-
-      let found = false;
-      sections.forEach((el) => {
-        const rect = el.getBoundingClientRect();
-        if (rect.top < HEADER_PROBE && rect.bottom > HEADER_PROBE * 0.5) {
-          found = true;
-        }
-      });
-      setOverLight(found);
+    const sync = () => {
+      const { light } = updateSiteHeaderAttributes();
+      setOverLight(light);
     };
 
-    check();
-    window.addEventListener("scroll", check, { passive: true });
-    window.addEventListener("resize", check);
+    sync();
+    window.addEventListener("scroll", sync, { passive: true, capture: true });
+    document.addEventListener("scroll", sync, { passive: true, capture: true });
+    window.addEventListener("resize", sync);
+
     return () => {
-      window.removeEventListener("scroll", check);
-      window.removeEventListener("resize", check);
+      window.removeEventListener("scroll", sync, true);
+      document.removeEventListener("scroll", sync, true);
+      window.removeEventListener("resize", sync);
     };
   }, []);
 

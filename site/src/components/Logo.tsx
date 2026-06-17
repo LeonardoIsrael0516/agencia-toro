@@ -34,7 +34,7 @@ export function Logo({ className = "", size = "md", theme = "dark" }: LogoProps)
           decoding="async"
           aria-hidden
           className={cn(
-            "absolute inset-0 h-full w-full object-contain object-left transition-opacity duration-500 group-hover:opacity-90",
+            "site-header-logo-on-dark absolute inset-0 h-full w-full object-contain object-left transition-opacity duration-500 group-hover:opacity-90",
             theme === "dark" ? "opacity-100" : "opacity-0",
           )}
         />
@@ -45,7 +45,7 @@ export function Logo({ className = "", size = "md", theme = "dark" }: LogoProps)
           height={48}
           decoding="async"
           className={cn(
-            "h-full w-full object-contain object-left transition-opacity duration-500 group-hover:opacity-90",
+            "site-header-logo-on-light h-full w-full object-contain object-left transition-opacity duration-500 group-hover:opacity-90",
             theme === "light" ? "opacity-100" : "opacity-0",
           )}
         />
