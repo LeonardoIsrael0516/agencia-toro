@@ -7,6 +7,20 @@ const JSON_HEADERS = {
   "Cache-Control": "no-store",
 };
 
+function isSubmitLeadError(error: unknown): error is SubmitLeadError {
+  return (
+    error instanceof SubmitLeadError ||
+    (typeof error === "object" &&
+      error !== null &&
+      (error as SubmitLeadError).name === "SubmitLeadError" &&
+      typeof (error as SubmitLeadError).status === "number")
+  );
+}
+
+function isZodValidationError(error: unknown): error is ZodError {
+  return error instanceof ZodError || ZodError.isZodError?.(error) === true;
+}
+
 export async function handleSubmitLeadRequest(request: Request): Promise<Response> {
   if (request.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
@@ -21,21 +35,24 @@ export async function handleSubmitLeadRequest(request: Request): Promise<Respons
     await ingestLeadToApi(data);
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: JSON_HEADERS });
   } catch (error) {
-    if (error instanceof SubmitLeadError) {
+    if (isSubmitLeadError(error)) {
       return new Response(JSON.stringify({ error: error.message }), {
         status: error.status,
         headers: JSON_HEADERS,
       });
     }
 
-    if (error instanceof ZodError) {
+    if (isZodValidationError(error)) {
       return new Response(JSON.stringify({ error: "Revise os dados do formulário e tente novamente." }), {
         status: 400,
         headers: JSON_HEADERS,
       });
     }
 
-    console.error("[submit-lead-http]", error);
+    console.error(
+      "[submit-lead-http]",
+      error instanceof Error ? error.stack ?? error.message : error,
+    );
     return new Response(
       JSON.stringify({ error: "Não foi possível enviar sua solicitação. Tente novamente em instantes." }),
       { status: 500, headers: JSON_HEADERS },

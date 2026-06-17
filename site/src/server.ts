@@ -48,7 +48,10 @@ export default {
         const { handleSubmitLeadRequest } = await import("./lib/api/submit-lead-http");
         return await handleSubmitLeadRequest(request);
       } catch (error) {
-        console.error("[lead-ingest]", error);
+        console.error(
+          "[lead-ingest]",
+          error instanceof Error ? error.stack ?? error.message : error,
+        );
         return new Response(
           JSON.stringify({ error: "Não foi possível enviar sua solicitação. Tente novamente em instantes." }),
           { status: 500, headers: { "content-type": "application/json; charset=utf-8" } },

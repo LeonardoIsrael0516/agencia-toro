@@ -1,16 +1,6 @@
-import { config as loadDotenv } from "dotenv";
-import { dirname, resolve } from "node:path";
 import process from "node:process";
-import { fileURLToPath } from "node:url";
 
 import { readWorkerEnv } from "./runtime-env";
-
-const siteRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-try {
-  loadDotenv({ path: resolve(siteRoot, ".env") });
-} catch {
-  // Workers não têm filesystem; vars vêm do binding Cloudflare.
-}
 
 function readEnv(name: string): string {
   return readWorkerEnv(name) || (process.env[name] ?? "").trim();
