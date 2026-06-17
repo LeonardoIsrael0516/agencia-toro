@@ -8,7 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
-    "deploy": "wrangler deploy",
+    "deploy": "npx wrangler@4 deploy",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -84,7 +84,6 @@
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
-    "vite": "^8.0.16",
-    "wrangler": "^4.101.0"
+    "vite": "^8.0.16"
   }
 }
