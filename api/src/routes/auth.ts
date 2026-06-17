@@ -30,10 +30,12 @@ import {
 
 function refreshCookieOptions(env: Env) {
   const isProd = env.NODE_ENV === "production";
+  const secure = env.COOKIE_SECURE ?? isProd;
   return {
     httpOnly: true,
-    secure: env.COOKIE_SECURE ?? isProd,
-    sameSite: (isProd ? "strict" : "lax") as "strict" | "lax",
+    secure,
+    // CRM e API em subdominios distintos (ex.: dash.* e api.*) exigem None + Secure.
+    sameSite: (secure ? "none" : "lax") as "none" | "lax",
     path: "/",
     maxAge: REFRESH_TTL_MS / 1000,
     ...(env.COOKIE_DOMAIN ? { domain: env.COOKIE_DOMAIN } : {}),

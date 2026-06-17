@@ -21,6 +21,7 @@
     "build:all": "npm run build:shared && npm --workspace=@agencia-toro/api run build && npm --workspace=@agencia-toro/crm run build && npm --workspace=@agencia-toro/site run build",
     "deploy": "npx wrangler@4 deploy",
     "deploy:site": "npm run deploy",
+    "deploy:crm": "npx wrangler@4 deploy --config wrangler.crm.toml",
     "db:push": "npm run db:push -w @agencia-toro/api",
     "db:seed": "npm run db:seed -w @agencia-toro/api",
     "format": "prettier --write ."
