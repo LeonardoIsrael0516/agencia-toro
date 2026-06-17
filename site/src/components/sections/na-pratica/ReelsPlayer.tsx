@@ -118,10 +118,8 @@ export function ReelsPlayer({ variant, fullscreen = false, className }: ReelsPla
   const unmute = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
-    video.currentTime = 0;
     video.muted = false;
     setMuted(false);
-    setProgress(0);
     void video.play().catch(() => {});
   }, []);
 
