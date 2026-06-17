@@ -40,11 +40,14 @@ Variaveis de ambiente:
   ADMIN_PASSWORD  Senha do admin (ou prompt interativo)
   CORS_ORIGINS    Origens CORS separadas por virgula (ou prompt interativo)
 
-Exemplo:
-  sudo bash scripts/install-api-vps.sh
-  # ou com outro repo:
-  export REPO_URL="https://github.com/outro-user/agencia-toro.git"
-  sudo bash scripts/install-api-vps.sh
+Exemplo (interativo, recomendado apos clone):
+  sudo bash /opt/agencia-toro/scripts/install-api-vps.sh --skip-clone
+
+Exemplo (one-liner com variaveis, sem prompt):
+  export ADMIN_EMAIL="admin@agenciatoro.com.br"
+  export ADMIN_PASSWORD="SuaSenhaSegura123"
+  export CORS_ORIGINS="https://crm.seudominio.com,https://www.seudominio.com"
+  curl -fsSL https://raw.githubusercontent.com/LeonardoIsrael0516/agencia-toro/main/scripts/install-api-vps.sh | sudo -E bash
 EOF
 }
 
@@ -133,14 +136,27 @@ prompt_if_empty() {
     return
   fi
 
+  if [[ ! -t 0 ]]; then
+    return
+  fi
+
   if [[ "$secret" == true ]]; then
-    read -r -s -p "$prompt_text: " current_value
+    read -r -s -p "$prompt_text: " current_value </dev/tty || true
     echo
   else
-    read -r -p "$prompt_text: " current_value
+    read -r -p "$prompt_text: " current_value </dev/tty || true
   fi
 
   printf -v "$var_name" '%s' "$current_value"
+}
+
+reattach_tty_if_needed() {
+  if [[ -t 0 || "$SKIP_CLONE" == true || ! -r /dev/tty ]]; then
+    return
+  fi
+
+  log "Reiniciando instalacao com terminal interativo..."
+  exec bash "${INSTALL_DIR}/scripts/install-api-vps.sh" --skip-clone "$@" < /dev/tty
 }
 
 generate_env_file() {
@@ -159,10 +175,10 @@ generate_env_file() {
   prompt_if_empty ADMIN_PASSWORD "Senha do administrador (min. 8 caracteres)" true
   prompt_if_empty CORS_ORIGINS "CORS_ORIGINS (URLs do CRM e site, separadas por virgula)" false
 
-  [[ -n "${ADMIN_EMAIL:-}" ]] || die "ADMIN_EMAIL e obrigatorio"
-  [[ -n "${ADMIN_PASSWORD:-}" ]] || die "ADMIN_PASSWORD e obrigatorio"
+  [[ -n "${ADMIN_EMAIL:-}" ]] || die "ADMIN_EMAIL e obrigatorio. Defina a variavel ou execute: sudo bash ${INSTALL_DIR}/scripts/install-api-vps.sh --skip-clone"
+  [[ -n "${ADMIN_PASSWORD:-}" ]] || die "ADMIN_PASSWORD e obrigatorio. Defina a variavel ou execute: sudo bash ${INSTALL_DIR}/scripts/install-api-vps.sh --skip-clone"
   [[ ${#ADMIN_PASSWORD} -ge 8 ]] || die "ADMIN_PASSWORD deve ter no minimo 8 caracteres"
-  [[ -n "${CORS_ORIGINS:-}" ]] || die "CORS_ORIGINS e obrigatorio"
+  [[ -n "${CORS_ORIGINS:-}" ]] || die "CORS_ORIGINS e obrigatorio. Ex.: https://crm.seudominio.com,https://www.seudominio.com"
 
   require_command openssl
 
@@ -289,6 +305,7 @@ main() {
   fi
 
   clone_or_update_repo
+  reattach_tty_if_needed "$@"
   generate_env_file
   deploy_stack
   setup_database
