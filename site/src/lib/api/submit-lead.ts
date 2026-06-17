@@ -7,7 +7,7 @@ import { getServerConfig } from "../config.server";
 const submitLeadInput = leadFormFieldsSchema
   .extend({
     privacyPolicyVersion: z.string().min(1),
-    consentedAt: z.string().datetime(),
+    consentedAt: z.string().min(1),
   })
   .superRefine((data, ctx) => {
     if (data.desafio === DESAFIO_OUTRO && (data.desafioOutro?.trim().length ?? 0) < 3) {
@@ -22,7 +22,7 @@ const submitLeadInput = leadFormFieldsSchema
 export const submitLead = createServerFn({ method: "POST" })
   .validator(submitLeadInput)
   .handler(async ({ data }) => {
-    const config = getServerConfig();
+    const config = await getServerConfig();
 
     if (!config.leadIngestSecret) {
       throw new Error("Serviço temporariamente indisponível. Tente novamente em instantes.");
