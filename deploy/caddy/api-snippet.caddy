@@ -1,0 +1,6 @@
+# api.agenciatoro.com.br {
+#     reverse_proxy 127.0.0.1:3333
+# }
+#
+# Se a VPS usar Caddy como proxy principal, adicione o bloco acima
+# ao Caddyfile existente (nao substitua o site do getfy/Gateway).
