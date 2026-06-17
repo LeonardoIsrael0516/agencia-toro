@@ -1,7 +1,11 @@
 name = "agencia-toro-site"
 compatibility_date = "2026-06-17"
 compatibility_flags = ["nodejs_compat"]
-main = "src/server.ts"
+main = "site/.output/server/index.mjs"
+
+[assets]
+directory = "site/.output/public"
+binding = "ASSETS"
 
 [observability]
 enabled = true
