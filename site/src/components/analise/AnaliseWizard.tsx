@@ -14,6 +14,7 @@ import {
 import { AnaliseFormChrome } from "./AnaliseFormChrome";
 import { AnaliseSubmitAnimation } from "./AnaliseSubmitAnimation";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useMobileKeyboardInset } from "@/hooks/use-mobile-keyboard-inset";
 import { submitLead } from "@/lib/api/submit-lead";
 import { LEGAL } from "@/lib/legal-config";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,9 @@ export function AnaliseWizard() {
 
   const current = ANALISE_STEPS[step];
   const isLast = step === TOTAL_STEPS - 1;
+  const isDesafioStep = current.field === "desafio";
+  const isOutroSelected = isDesafioStep && data.desafio === DESAFIO_OUTRO;
+  const keyboardInset = useMobileKeyboardInset();
   const currentValue = data[current.field];
   const shouldAutoFocus =
     current.type !== "radio" &&
@@ -157,15 +161,28 @@ export function AnaliseWizard() {
             key={animKey}
             className="flex min-h-0 flex-1 flex-col animate-in fade-in slide-in-from-bottom-2 duration-300"
           >
-            <div className="min-h-0 flex-1 py-3 sm:py-10">
+            <div
+              className={cn(
+                "min-h-0 flex-1",
+                isLast ? "max-lg:pb-44" : "max-lg:pb-32",
+                isOutroSelected ? "py-1 sm:py-10" : "py-3 sm:py-10",
+              )}
+            >
               {current.greeting ? (
                 <p className="text-sm text-[var(--ink)]/45">{current.greeting}</p>
               ) : null}
-              <h2 className="mt-1.5 text-balance text-xl font-bold tracking-tight text-[var(--ink)] sm:mt-2 sm:text-3xl">
+              <h2
+                className={cn(
+                  "text-balance font-bold tracking-tight text-[var(--ink)]",
+                  isOutroSelected
+                    ? "mt-1 text-lg sm:mt-2 sm:text-3xl"
+                    : "mt-1.5 text-xl sm:mt-2 sm:text-3xl",
+                )}
+              >
                 {current.question}
               </h2>
 
-              <div className="mt-5 w-full sm:mt-8">
+              <div className={cn("mt-5 w-full", isOutroSelected ? "mt-3 sm:mt-8" : "sm:mt-8")}>
                 {current.type === "text" || current.type === "tel" ? (
                   <Field error={errors[current.field]} hint={current.hint}>
                     <input
@@ -200,54 +217,89 @@ export function AnaliseWizard() {
                 ) : null}
 
                 {current.type === "radio" && current.options ? (
-                  <Field error={current.field === "desafio" && data.desafio === DESAFIO_OUTRO ? undefined : errors[current.field]}>
-                    <div className="grid gap-1.5 sm:gap-2">
-                      {current.options.map((opt) => {
-                        const isOutro = current.field === "desafio" && opt === DESAFIO_OUTRO;
+                  <Field error={isOutroSelected ? undefined : errors[current.field]}>
+                    {isOutroSelected ? (
+                      <div className="space-y-2">
+                        <OutroChoice
+                          label={DESAFIO_OUTRO}
+                          checked
+                          value={data.desafioOutro}
+                          error={errors.desafioOutro}
+                          onSelect={() => {}}
+                          onChange={(v) => {
+                            update("desafioOutro", v);
+                            setErrors((err) => ({ ...err, desafioOutro: undefined }));
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            update("desafio", "");
+                            update("desafioOutro", "");
+                            setErrors((e) => ({ ...e, desafio: undefined, desafioOutro: undefined }));
+                          }}
+                          className="text-xs font-medium text-[#006CFF] transition hover:underline sm:text-sm"
+                        >
+                          ← Ver outras opções
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid gap-1.5 sm:gap-2">
+                        {current.options.map((opt) => {
+                          const isOutro = isDesafioStep && opt === DESAFIO_OUTRO;
 
-                        if (isOutro) {
+                          if (isOutro) {
+                            return (
+                              <OutroChoice
+                                key={opt}
+                                label={opt}
+                                checked={data.desafio === opt}
+                                value={data.desafioOutro}
+                                error={errors.desafioOutro}
+                                onSelect={() => {
+                                  update("desafio", opt);
+                                  setErrors((e) => ({ ...e, desafio: undefined, desafioOutro: undefined }));
+                                }}
+                                onChange={(v) => {
+                                  update("desafioOutro", v);
+                                  setErrors((err) => ({ ...err, desafioOutro: undefined }));
+                                }}
+                              />
+                            );
+                          }
+
                           return (
-                            <OutroChoice
+                            <Choice
                               key={opt}
                               label={opt}
-                              checked={data.desafio === opt}
-                              value={data.desafioOutro}
-                              error={errors.desafioOutro}
-                              onSelect={() => {
-                                update("desafio", opt);
-                                setErrors((e) => ({ ...e, desafio: undefined, desafioOutro: undefined }));
-                              }}
-                              onChange={(v) => {
-                                update("desafioOutro", v);
-                                setErrors((err) => ({ ...err, desafioOutro: undefined }));
+                              checked={data[current.field] === opt}
+                              onClick={() => {
+                                if (isDesafioStep) {
+                                  update("desafioOutro", "");
+                                  setErrors((e) => ({ ...e, desafioOutro: undefined }));
+                                }
+                                update(current.field, opt);
+                                setErrors((e) => ({ ...e, [current.field]: undefined }));
                               }}
                             />
                           );
-                        }
-
-                        return (
-                          <Choice
-                            key={opt}
-                            label={opt}
-                            checked={data[current.field] === opt}
-                            onClick={() => {
-                              if (current.field === "desafio") {
-                                update("desafioOutro", "");
-                                setErrors((e) => ({ ...e, desafioOutro: undefined }));
-                              }
-                              update(current.field, opt);
-                              setErrors((e) => ({ ...e, [current.field]: undefined }));
-                            }}
-                          />
-                        );
-                      })}
-                    </div>
+                        })}
+                      </div>
+                    )}
                   </Field>
                 ) : null}
               </div>
             </div>
 
-            <div className="flex shrink-0 flex-col gap-3 pt-2 sm:pt-4">
+            <div
+              className={cn(
+                "flex shrink-0 flex-col gap-3 pt-2 sm:pt-4",
+                "max-lg:fixed max-lg:inset-x-0 max-lg:z-40 max-lg:border-t max-lg:border-[var(--ink)]/8",
+                "max-lg:bg-[var(--paper)]/95 max-lg:px-5 max-lg:pb-[max(0.75rem,env(safe-area-inset-bottom))] max-lg:pt-3 max-lg:backdrop-blur-sm",
+                "lg:relative lg:border-0 lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-2",
+              )}
+              style={{ bottom: keyboardInset }}
+            >
               {isLast ? (
                 <PrivacyConsentField
                   checked={data.consentimentoPrivacidade}

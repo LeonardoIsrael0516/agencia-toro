@@ -30,6 +30,8 @@ export const submitLead = createServerFn({ method: "POST" })
 
     const payload = {
       ...data,
+      instagram: data.instagram?.trim() || undefined,
+      desafioOutro: data.desafio === DESAFIO_OUTRO ? data.desafioOutro?.trim() : undefined,
       source: "analise" as const,
     };
 
@@ -50,7 +52,14 @@ export const submitLead = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      console.error("[submit-lead] API error:", res.status, body.slice(0, 200));
+      console.error("[submit-lead] API error:", res.status, config.apiUrl, body.slice(0, 400));
+
+      if (res.status === 401) {
+        throw new Error("Serviço temporariamente indisponível. Tente novamente em instantes.");
+      }
+      if (res.status === 400) {
+        throw new Error("Revise os dados do formulário e tente novamente.");
+      }
       throw new Error("Não foi possível enviar sua solicitação. Tente novamente em instantes.");
     }
 
