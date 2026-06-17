@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { ReelsPlayer } from "./na-pratica/ReelsPlayer";
-import { useReelsScrollSettle } from "@/hooks/use-reels-scroll-settle";
 import { useInView } from "@/hooks/use-in-view";
 import { cn } from "@/lib/utils";
 
@@ -55,8 +54,6 @@ function CenarioRow({
 export function NaPratica() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  useReelsScrollSettle(sectionRef);
-
   useEffect(() => {
     const section = sectionRef.current;
     const mq = window.matchMedia("(max-width: 1023px)");
@@ -89,7 +86,7 @@ export function NaPratica() {
       id="na-pratica"
       className={cn(
         "relative overflow-hidden bg-black",
-        "h-[100dvh] h-[100svh] snap-section-reels touch-pan-y lg:h-auto lg:snap-none",
+        "h-[100svh] snap-section-reels touch-pan-y lg:h-auto lg:snap-none",
         "lg:border-y lg:border-white/5 lg:bg-[var(--ink)]",
       )}
     >

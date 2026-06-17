@@ -140,6 +140,12 @@
   html {
     scroll-behavior: smooth;
   }
+
+  @media (max-width: 1023px) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
 }
 
 @utility text-gradient-brand {
@@ -277,11 +283,14 @@
 /* Home — Reels fullscreen snap (mobile) */
 @media (max-width: 1023px) {
   html.home-reels-snap {
-    scroll-snap-type: y proximity;
+    scroll-behavior: auto;
+    scroll-snap-type: y mandatory;
+    overscroll-behavior-y: contain;
   }
 
   .snap-section-reels {
     scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 
   .snap-section-next {
