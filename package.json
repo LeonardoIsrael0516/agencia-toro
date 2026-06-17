@@ -8,7 +8,7 @@
     "api"
   ],
   "scripts": {
-    "dev": "concurrently -n site,crm,api -c blue,magenta,green \"npm run dev -w @agencia-toro/site\" \"npm run dev -w @agencia-toro/crm\" \"npm run dev -w @agencia-toro/api\"",
+    "dev": "npm run build -w @agencia-toro/shared && concurrently -n site,crm,api -c blue,magenta,green \"npm run dev -w @agencia-toro/site\" \"npm run dev -w @agencia-toro/crm\" \"npm run dev -w @agencia-toro/api\"",
     "dev:site": "npm run dev -w @agencia-toro/site",
     "dev:crm": "npm run dev -w @agencia-toro/crm",
     "dev:api": "npm run dev -w @agencia-toro/api",
