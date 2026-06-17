@@ -40,7 +40,7 @@ function AuthBootScreen() {
     <div className="grid min-h-dvh place-items-center bg-slate-50">
       <div className="text-center">
         <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-navy/15 border-t-brand-blue" />
-        <p className="mt-4 text-sm text-navy/55">Carregando sessão...</p>
+        <p className="mt-4 text-sm text-navy/55">Carregando sessão..</p>
       </div>
     </div>
   );
