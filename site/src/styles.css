@@ -287,10 +287,29 @@
   .snap-section-next {
     scroll-snap-align: start;
   }
+}
 
-  body.reels-immersive [data-site-header] {
-    opacity: 0.35;
-    pointer-events: none;
+/* Home: fundo do header ao rolar (funciona mesmo se o JS demorar a hidratar) */
+@supports (animation-timeline: scroll()) {
+  [data-site-header][data-home="true"] {
+    animation: site-header-scroll-bar linear both;
+    animation-timeline: scroll();
+    animation-range: 0 72px;
+  }
+}
+
+@keyframes site-header-scroll-bar {
+  from {
+    background-color: transparent;
+    border-bottom-color: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  to {
+    background-color: color-mix(in oklch, var(--background) 75%, transparent);
+    border-bottom: 1px solid color-mix(in oklch, white 6%, transparent);
+    box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(24px);
   }
 }
 

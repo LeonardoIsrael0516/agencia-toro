@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { Logo } from "./Logo";
 import { useOverLightSection } from "@/hooks/use-over-light-section";
 import { cn } from "@/lib/utils";
@@ -20,14 +20,18 @@ export function SiteHeader() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/";
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const onScroll = () => {
-      setScrolled(window.scrollY > 16);
-      if (window.scrollY > 16) setOpen(false);
+      setScrolled(window.scrollY > 8);
+      if (window.scrollY > 8) setOpen(false);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    document.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -46,6 +50,7 @@ export function SiteHeader() {
   return (
     <header
       data-site-header
+      data-home={isHome ? "true" : undefined}
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-500",
         !showBar && "bg-transparent",
